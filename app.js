@@ -10,10 +10,10 @@ var cfile = null;
 
 // Initialize log4js
 // log4js.loadAppender('file');
-var logname = 'acequill-service';
+var logname = 'aqservice';
 log4js.configure({
-  appenders: { acequill-service: { type: 'file', filename: 'acequill-service.log' } },
-  categories: { default: { appenders: ['acequill-service'], level: 'error' } }
+  appenders: { aqservice: { type: 'file', filename: 'aqservice.log' } },
+  categories: { default: { appenders: ['aqservice'], level: 'error' } }
 });
 
 const logger = log4js.getLogger(logname);
