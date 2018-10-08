@@ -1,5 +1,3 @@
-"use strict";
-
 var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
 var log4js = require('log4js')
@@ -11,8 +9,16 @@ var cfile = null;
 
 
 // Initialize log4js
-log4js.loadAppender('file');
+// log4js.loadAppender('file');
 var logname = 'acequill-service';
+log4js.configure({
+  appenders: { acequill-service: { type: 'file', filename: 'acequill-service.log' } },
+  categories: { default: { appenders: ['acequill-service'], level: 'error' } }
+});
+
+const logger = log4js.getLogger(logname);
+
+/*
 log4js.configure({
     appenders: [{
         type: 'dateFile',
@@ -22,6 +28,7 @@ log4js.configure({
         backups: 10
     }]
 });
+*/
 
 // Get the name of the config file from the command line (optional)
 nconf.argv().env();
@@ -43,7 +50,7 @@ try {
     process.exit(1);
 }
 
-var logger = log4js.getLogger(logname);
+
 
 nconf.file({
     file: cfile
