@@ -66,6 +66,7 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('commo
 }
 
 // Set log4js level from the config file
+/*
 logger.setLevel(getConfigVal('common:debug_level'));
 logger.trace('TRACE messages enabled.');
 logger.debug('DEBUG messages enabled.');
@@ -74,6 +75,7 @@ logger.warn('WARN messages enabled.');
 logger.error('ERROR messages enabled.');
 logger.fatal('FATAL messages enabled.');
 logger.info('Using config file: ' + cfile);
+*/
 
 var bridgeIdMap = new Map();
 
