@@ -78,8 +78,8 @@ function init_ami() {
             ami = new asteriskManager(
                 getConfigVal('ami.port'),
                 getConfigVal('asterisk:sip:private_ip'),
-                getConfigVal('ami:id',
-                getConfigVal('ami:passwd',
+                getConfigVal('ami:id'),
+                getConfigVal('ami:passwd'),
                 true);
 
             ami.keepConnected();
