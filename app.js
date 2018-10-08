@@ -5,7 +5,7 @@ var asteriskConfigs = require('./config/asterisk');
 var log4js = require('log4js')
 var nconf = require('nconf')
 var fs = require('fs')
-var cfile = null
+var cfile = null;
 //var Watson = require('./stt_engines/watson');
 
 
