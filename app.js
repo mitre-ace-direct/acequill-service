@@ -2,7 +2,71 @@
 
 var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
+var log4js = require('log4js')
+var nconf = require('nconf')
+var fs = require('fs')
+var cfile = null
 //var Watson = require('./stt_engines/watson');
+
+
+
+// Initialize log4js
+log4js.loadAppender('file');
+var logname = 'acequill-service';
+log4js.configure({
+    appenders: [{
+        type: 'dateFile',
+        filename: 'logs/' + logname + '.log',
+        alwaysIncludePattern: false,
+        maxLogSize: 20480,
+        backups: 10
+    }]
+});
+
+// Get the name of the config file from the command line (optional)
+nconf.argv().env();
+
+cfile = '../dat/config.json';
+
+//Validate the incoming JSON config file
+try {
+    var content = fs.readFileSync(cfile, 'utf8');
+    var myjson = JSON.parse(content);
+    console.log("Valid JSON config file");
+} catch (ex) {
+    console.log("");
+    console.log("*******************************************************");
+    console.log("Error! Malformed configuration file: " + cfile);
+    console.log('Exiting...');
+    console.log("*******************************************************");
+    console.log("");
+    process.exit(1);
+}
+
+var logger = log4js.getLogger(logname);
+
+nconf.file({
+    file: cfile
+});
+var configobj = JSON.parse(fs.readFileSync(cfile, 'utf8'));
+
+//the presence of a populated cleartext field in config.json means that the file is in clear text
+//remove the field or set it to "" if the file is encoded
+var clearText = false;
+if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('common:cleartext') !== ""  ) {
+    console.log('clearText field is in config.json. assuming file is in clear text');
+    clearText = true;
+}
+
+// Set log4js level from the config file
+logger.setLevel(getConfigVal('common:debug_level'));
+logger.trace('TRACE messages enabled.');
+logger.debug('DEBUG messages enabled.');
+logger.info('INFO messages enabled.');
+logger.warn('WARN messages enabled.');
+logger.error('ERROR messages enabled.');
+logger.fatal('FATAL messages enabled.');
+logger.info('Using config file: ' + cfile);
 
 var bridgeIdMap = new Map();
 
@@ -12,10 +76,10 @@ function init_ami() {
     if (ami === null) {
         try {
             ami = new asteriskManager(
-                asteriskConfigs.port,
-                asteriskConfigs.host,
-                asteriskConfigs.user,
-                asteriskConfigs.password,
+                getConfigVal('ami.port'),
+                getConfigVal('asterisk:sip:private_ip'),
+                getConfigVal('ami:id',
+                getConfigVal('ami:passwd',
                 true);
 
             ami.keepConnected();
@@ -153,3 +217,32 @@ function startTranscription(wavFile, channel) {
         }
     });
 }*/
+
+
+/**
+ * Function to verify the config parameter name and
+ * decode it from Base64 (if necessary).
+ * @param {type} param_name of the config parameter
+ * @returns {unresolved} Decoded readable string.
+ */
+function getConfigVal(param_name) {
+  var val = nconf.get(param_name);
+  if (typeof val !== 'undefined' && val !== null) {
+    //found value for param_name
+    var decodedString = null;
+    if (clearText) {
+      decodedString = val;
+    } else {
+      decodedString = new Buffer(val, 'base64');
+    }
+  } else {
+    //did not find value for param_name
+    logger.error('');
+    logger.error('*******************************************************');
+    logger.error('ERROR!!! Config parameter is missing: ' + param_name);
+    logger.error('*******************************************************');
+    logger.error('');
+    decodedString = "";
+  }
+  return (decodedString.toString());
+}
