@@ -164,8 +164,15 @@ function handle_manager_event(evt) {
               var channel1 = bridgeIdMap.get(bridgeId);
               var channel2 = channel;
 
-              console.log('Retrieved ' + channel1 + " from map");
+              console.log("channel1: " + bridgeIdMap.get(bridgeId));
+              console.log("channel2: " + channel2);
 
+                var iterator1 = bridgeIdMap.keys();
+                for (var key of iterator1) {
+                    console.log("key: " + key);
+                    console.log("val: " + bridgeIdMap.get(key));
+                    console.log();
+                }
             }
 
 
