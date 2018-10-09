@@ -8,7 +8,9 @@ var fs = require('fs');
 var cfile = null;
 //var Watson = require('./stt_engines/watson');
 
-
+// TODO - Update the config.json
+var transcriptFilePath = '/tmp/transcript';
+var wavFilePath = '/tmp/wav/';
 
 // Initialize log4js
 // log4js.loadAppender('file');
@@ -180,6 +182,9 @@ function handle_manager_event(evt) {
                 bridgeIdMap.delete(bridgeId);
 
                 console.log("bridgeIdMap.size - after: " + bridgeIdMap.size);
+
+                startTranscription(wavFilePath + bridgeId + "-asterisk-in.wav16",  channel1);
+                startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
             }
 
 
@@ -227,8 +232,10 @@ function handle_manager_event(evt) {
     }
 }
 
-/*
+
 function startTranscription(wavFile, channel) {
+
+    /*
     var stt;
     try {
         var watsonConfigs = require('./config/watson');
@@ -237,26 +244,50 @@ function startTranscription(wavFile, channel) {
         console.log('Error error configuring watson');
         console.log(err);
     }
+    */
+
+    console.log("Entering startTranscription");
+    console.log("wavefile: " + waveFile + ", channel: " + channel);
+
     var msgTime = 0;
-    stt.start(function (data) {
+    var data = {};
+
+    // stt.start(function (data) {
         if (msgTime === 0) {
             var d = new Date();
             msgTime = d.getTime();
         }
 
-        data.event = "message-stream"
+        data.event = "message-stream";
+        data.extension = channel;
+        data.transcript = "Test transcript";
+        data.source = "PSTN";
+        data.sttengine = "W";
+        data.final = "true";
         data.msgid = msgTime;
+        data.timestamp = msgTime;
 
+        
         if (channel) {
+
+                /*
             sendAmiAction({
                 "Action": "SendText",
                 "ActionID": data.msgid,
                 "Channel": channel,
                 "Message": JSON.stringify(data)
             });
+            */
+
+            console.log("Recording file: " + wavFile);
+            sendAmiAction ({
+                "Action": "Monitor",
+                "Channel": channel,
+                "File": wavFile,
+                "Format": "wav16"
+            });
         }
-    });
-}*/
+}
 
 
 /**
