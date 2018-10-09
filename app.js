@@ -222,11 +222,20 @@ function handle_manager_event(evt) {
             break;
 
         case ('Hangup'):
+            console.log('****** Hangup ******');
+            console.log(JSON.stringify(evt));
 
             var extString = evt.channel;
             var extension = extString.split(/[\/,-]/);
 
             // TODO - Clear map entry for this channel
+
+            console.log("Sending StopMonitor() for " + evt.channel);
+
+            sendAmiAction ({
+                "Action": "StopMonitor",
+                "Channel": evt.channel
+            });
 
             break;
     }
