@@ -114,8 +114,6 @@ init_ami();
 
 function handle_manager_event(evt) {
 
-    console.log('Received: ' + evt.event);
-
     switch (evt.event) {
         case ('DialEnd'):
             //Listen for DialEnd to indicate a connected call.
