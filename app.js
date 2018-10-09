@@ -138,7 +138,10 @@ function handle_manager_event(evt) {
             * the same bridge ID (showing that it is the same call). Then,
             * we can use the channel IDs to record each leg of the call.
             */
-            if (bridgeIdMap.getValue(bridgeId) === null) {
+
+            console.log("bridgeIdMap.size: " + bridgeIdMap.size);
+
+            if (bridgeIdMap.get(bridgeId) === null) {
               console.log("Received first leg of the call, creating map");
               console.log(bridgeId + " => " + channel);
 
