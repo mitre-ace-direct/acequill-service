@@ -173,6 +173,13 @@ function handle_manager_event(evt) {
                     console.log("val: " + bridgeIdMap.get(key));
                     console.log();
                 }
+
+                console.log("Clearing map");
+                console.log("bridgeIdMap.size - before: " + bridgeIdMap.size);
+
+                bridgeIdMap.delete(bridgeId);
+
+                console.log("bridgeIdMap.size - after: " + bridgeIdMap.size);
             }
 
 
