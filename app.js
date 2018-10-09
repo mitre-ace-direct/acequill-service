@@ -1,8 +1,11 @@
+/*jslint node: true */
+"use strict";
+
 var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
-var log4js = require('log4js')
-var nconf = require('nconf')
-var fs = require('fs')
+var log4js = require('log4js');
+var nconf = require('nconf');
+var fs = require('fs');
 var cfile = null;
 //var Watson = require('./stt_engines/watson');
 
@@ -12,11 +15,11 @@ var cfile = null;
 // log4js.loadAppender('file');
 var logname = 'aqservice';
 log4js.configure({
-  appenders: { aqservice: { type: 'file', filename: 'aqservice.log' } },
-  categories: { default: { appenders: ['aqservice'], level: 'error' } }
+    appenders: { aqservice: { type: 'file', filename: 'aqservice.log' } },
+    categories: { default: { appenders: ['aqservice'], level: 'error' } }
 });
 
-const logger = log4js.getLogger(logname);
+var logger = log4js.getLogger(logname);
 
 /*
 log4js.configure({
@@ -60,7 +63,7 @@ var configobj = JSON.parse(fs.readFileSync(cfile, 'utf8'));
 //the presence of a populated cleartext field in config.json means that the file is in clear text
 //remove the field or set it to "" if the file is encoded
 var clearText = false;
-if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('common:cleartext') !== ""  ) {
+if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('common:cleartext') !== "" ) {
     console.log('clearText field is in config.json. assuming file is in clear text');
     clearText = true;
 }
@@ -110,7 +113,7 @@ function handle_manager_event(evt) {
         case ('DialEnd'):
             //Listen for DialEnd to indicate a connected call.
             console.log('****** Processing AMI DialEnd ******');
-            if (evt.dialstatus === 'ANSWER') {
+        if (evt.dialstatus === 'ANSWER') {
 
             }
             break;
@@ -128,7 +131,7 @@ function handle_manager_event(evt) {
             * the same bridge ID (showing that it is the same call). Then,
             * we can use the channel IDs to record each leg of the call.
             */
-            if (bridgeIdMap.getValue(bridgeId) == null) {
+            if (bridgeIdMap.getValue(bridgeId) === null) {
               console.log("Received first leg of the call, creating map");
               console.log(bridgeId + " => " + channel);
 
@@ -236,10 +239,14 @@ function startTranscription(wavFile, channel) {
  */
 function getConfigVal(param_name) {
   var val = nconf.get(param_name);
+  var decodedString = null;
+
   if (typeof val !== 'undefined' && val !== null) {
     //found value for param_name
-    var decodedString = null;
+
+
     if (clearText) {
+
       decodedString = val;
     } else {
       decodedString = new Buffer(val, 'base64');
