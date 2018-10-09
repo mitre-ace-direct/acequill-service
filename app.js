@@ -332,6 +332,9 @@ function getConfigVal(param_name) {
 }
 
 function sendAmiAction(obj) {
+
+    console.log("sendAmiAction: " + JSON.stringify(obj));
+
     ami.action(obj, function (err, res) {
       if (err) {
         logger.error('AMI Action error ' + JSON.stringify(err));
