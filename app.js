@@ -1,5 +1,4 @@
-/*jslint node: true */
-"use strict";
+
 
 var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
@@ -114,6 +113,9 @@ init_ami();
 
 
 function handle_manager_event(evt) {
+
+    console.log('In event handler');
+
     switch (evt.event) {
         case ('DialEnd'):
             //Listen for DialEnd to indicate a connected call.
