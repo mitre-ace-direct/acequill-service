@@ -114,7 +114,7 @@ init_ami();
 
 function handle_manager_event(evt) {
 
-    console.log('In event handler');
+    console.log('Received: ' + evt.event);
 
     switch (evt.event) {
         case ('DialEnd'):
