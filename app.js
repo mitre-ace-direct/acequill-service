@@ -84,14 +84,19 @@ var bridgeIdMap = new Map();
 
 var ami = null;
 
+console.log ("port: " + getConfigVal('asterisk:ami:port') );
+console.log("ip: " + getConfigVal('asterisk:sip:private_ip') );
+console.log("id: " + getConfigVal('asterisk:ami:id') );
+console.log("pass: " + getConfigVal('asterisk:ami:passwd') );
+
 function init_ami() {
     if (ami === null) {
         try {
             ami = new asteriskManager(
-                getConfigVal('ami.port'),
+                getConfigVal('asterisk:ami:port'),
                 getConfigVal('asterisk:sip:private_ip'),
-                getConfigVal('ami:id'),
-                getConfigVal('ami:passwd'),
+                getConfigVal('asterisk:ami:id'),
+                getConfigVal('asterisk:ami:passwd'),
                 true);
 
             ami.keepConnected();
