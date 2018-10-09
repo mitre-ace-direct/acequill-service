@@ -247,7 +247,7 @@ function startTranscription(wavFile, channel) {
     */
 
     console.log("Entering startTranscription");
-    console.log("wavefile: " + waveFile + ", channel: " + channel);
+    console.log("wavFile: " + wavFile + ", channel: " + channel);
 
     var msgTime = 0;
     var data = {};
@@ -321,3 +321,13 @@ function getConfigVal(param_name) {
   }
   return (decodedString.toString());
 }
+
+function sendAmiAction(obj) {
+    ami.action(obj, function (err, res) {
+      if (err) {
+        logger.error('AMI Action error ' + JSON.stringify(err));
+      }
+  
+    });
+  }
+  
