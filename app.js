@@ -125,10 +125,14 @@ function handle_manager_event(evt) {
 
         case ('BridgeEnter'):
             console.log('****** BridgeEnter ******');
+            console.log(JSON.stringify(evt));
             //TODO: figure out who each channel belongs to and make two calls to startTranscription one for each leg of the call
 
             var bridgeId = evt.bridgeuniqueid; // Looks like 'd1084052-f50a-4c5d-b459-354e832a9ff5'
             var channel = evt.channel;         // Looks like 'PJSIP/30001-0000001f'
+
+            console.log("bridgeId: " + bridgeId);
+            console.log("channel: " + channel);
 
             /*
             * We will receive two BridgeEnter events, one for each leg of the
