@@ -143,7 +143,9 @@ function handle_manager_event(evt) {
 
             console.log("bridgeIdMap.size: " + bridgeIdMap.size);
 
-            if (bridgeIdMap.get(bridgeId) === 'undefined') {
+            console.log("Get return: '" + bridgeIdMap.get(bridgeId) + "'");
+
+            if (bridgeIdMap.get(bridgeId) === "undefined") {
               console.log("Received first leg of the call, creating map");
               console.log(bridgeId + " => " + channel);
 
