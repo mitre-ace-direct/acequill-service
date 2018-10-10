@@ -213,6 +213,12 @@ function handle_manager_event(evt) {
                 });
                 */
 
+                var inFile = wavFilePath + bridgeId + "-in.wav16";
+                var outFile = wavFilePath + bridgeId + "-out.wav16";
+
+                console.log("inFile: " + inFile);
+                console.log("outFile: " + outFile);
+
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-in.wav16",  channel1);
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
 
