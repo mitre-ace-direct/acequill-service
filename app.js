@@ -80,6 +80,7 @@ logger.info('Using config file: ' + cfile);
 */
 
 var bridgeIdMap = new Map();
+var channelIdSet = new Set();
 
 var ami = null;
 
@@ -183,16 +184,22 @@ function handle_manager_event(evt) {
 
                 console.log("bridgeIdMap.size - after: " + bridgeIdMap.size);
 
-                var consumerWav = wavFilePath + bridgeId + "-asterisk-in-consumer.wav16";
-                var agentWav = wavFilePath + bridgeId + "-asterisk-out-agent.wav16";
+                // var consumerWav = wavFilePath + bridgeId + "-asterisk-in-consumer.wav16";
+                // var agentWav = wavFilePath + bridgeId + "-asterisk-out-agent.wav16";
+
+                // var consumerWav = wavFilePath + bridgeId;
+                var wavFilename = wavFilePath + bridgeId;
+
+                console.log("Adding " + agentChannel1 + " to set");
+                channelIdSet.add(agentChannel1);
 
                 // Start recording here
 
-                console.log("Recording file: " + agentWav);
+                console.log("Recording file: " + wavFilename);
                 sendAmiAction ({
                     "Action": "Monitor",
                     "Channel": agentChannel1,
-                    "File": agentWav,
+                    "File": wavFilename,
                     "Format": "wav16"
                 });
 
@@ -250,12 +257,17 @@ function handle_manager_event(evt) {
 
             // TODO - Clear map entry for this channel
 
-            console.log("Sending StopMonitor() for " + evt.channel);
+            if (channelIdSet.has(evt.channel)) {
 
-            sendAmiAction ({
-                "Action": "StopMonitor",
-                "Channel": evt.channel
-            });
+                console.log("Found a match in the set for " + evt.channel);
+
+                sendAmiAction ({
+                    "Action": "StopMonitor",
+                    "Channel": evt.channel
+                });
+    
+                channelIdSet.delete(evt.channel);
+            }
 
             break;
     }
