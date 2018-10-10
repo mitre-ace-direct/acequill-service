@@ -213,6 +213,7 @@ function handle_manager_event(evt) {
                 });
                 */
 
+                // Pass these out to the startTranscription method
                 var inFile = wavFilePath + bridgeId + "-in.wav16";
                 var outFile = wavFilePath + bridgeId + "-out.wav16";
 
@@ -222,7 +223,7 @@ function handle_manager_event(evt) {
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-in.wav16",  channel1);
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
 
-                // startTranscription(consumerWav);
+                startTranscription(inFile);
                 // startTranscription(agentWav);
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
             }
