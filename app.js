@@ -285,18 +285,30 @@ function startTranscription(wavFile) {
 
     var sttEngine;
     var engineCd = 'W';
+    var data;
   
     logger.debug('Entering startTranscription() for extension: ' + wavFile);
 
     try {
+        console.log();
+        console.log("#### In try{}")
+
         var config = JSON.parse(fs.readFileSync('./stt_configs/ibm-watson.json'));
+
+        console.log("config: " + JSON.stringify(config));
+
         config.contentType = "audio/wav; rate=16000";
         config.smartFormatting = true;
         sttEngine = new Watson(file, config);
         logger.debug("Connected to Watson");
+
+        console.log("Connected to Watson");
     } catch (err) {
         logger.debug('Error loading stt_configs/ibm-watson.json');
         logger.debug(err);
+
+        console.log('Error loading stt_configs/ibm-watson.json');
+        console.log(err);
     }
       
     /*
