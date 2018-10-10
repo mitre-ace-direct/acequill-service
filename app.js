@@ -340,7 +340,7 @@ function startTranscription(wavFile) {
         var d = new Date();
         sttEngineMsgTime = d.getTime();
       }
-      data.event = "message-stream"
+      data.event = "message-stream";
       data.source = "PSTN";
       data.extension = extension;
       data.msgid = pstnMsgTime;
