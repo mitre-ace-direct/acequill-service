@@ -291,7 +291,7 @@ function startTranscription(wavFile) {
 
     try {
         console.log();
-        console.log("#### In try{}")
+        console.log("#### In try{}");
 
         var config = JSON.parse(fs.readFileSync('./stt_configs/watson.json'));
 
@@ -376,6 +376,9 @@ function startTranscription(wavFile) {
         logger.debug('PSTN: ' + data.transcript);
         // fs.appendFileSync(transcriptFilePath + pstnFilename + '.txt', +data.timestamp + ': ' + data.transcript + '\n');
         //reset pstnMsgTime;
+
+        print("Transcript: " + JSON.stringify(data));
+
         sttEngineMsgTime = 0;
       }
     });
