@@ -284,6 +284,7 @@ function handle_manager_event(evt) {
 function startTranscription(wavFile) {
 
     var sttEngine;
+    var engineCd = 'W';
   
     logger.debug('Entering startTranscription() for extension: ' + wavFile);
 
@@ -291,8 +292,7 @@ function startTranscription(wavFile) {
         var config = JSON.parse(fs.readFileSync('./stt_configs/ibm-watson.json'));
         config.contentType = "audio/wav; rate=16000";
         config.smartFormatting = true;
-        pstn = new Watson(file, config);
-        engineCd = 'W';
+        sttEngine = new Watson(file, config);
         logger.debug("Connected to Watson");
     } catch (err) {
         logger.debug('Error loading stt_configs/ibm-watson.json');
