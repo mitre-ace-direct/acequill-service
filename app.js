@@ -4,7 +4,7 @@ var log4js = require('log4js');
 var nconf = require('nconf');
 var fs = require('fs');
 var cfile = null;
-//var Watson = require('./stt_engines/watson');
+var Watson = require('./transcription/watson');
 
 // TODO - Update the config.json
 var transcriptFilePath = '/tmp/transcript';
@@ -31,7 +31,7 @@ log4js.configure({
     }]
 });
 */
-
+ 
 // Get the name of the config file from the command line (optional)
 nconf.argv().env();
 
