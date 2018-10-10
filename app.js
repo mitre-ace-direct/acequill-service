@@ -1,5 +1,3 @@
-
-
 var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
 var log4js = require('log4js');
@@ -16,7 +14,7 @@ var wavFilePath = '/tmp/wav/';
 // log4js.loadAppender('file');
 var logname = 'aqservice';
 log4js.configure({
-    appenders: { aqservice: { type: 'file', filename: 'aqservice.log' } },
+    appenders: { aqservice: { type: 'file', filename: 'logs/aqservice.log' } },
     categories: { default: { appenders: ['aqservice'], level: 'error' } }
 });
 
@@ -163,18 +161,20 @@ function handle_manager_event(evt) {
               console.log(bridgeId + " => " + channel);
               console.log();
 
-              var channel1 = bridgeIdMap.get(bridgeId);
-              var channel2 = channel;
+              var agentChannel1 = bridgeIdMap.get(bridgeId);
+              var consumerChannel2 = channel;
 
-              console.log("channel1: " + bridgeIdMap.get(bridgeId));
-              console.log("channel2: " + channel2);
+              console.log("agentChannel1: " + bridgeIdMap.get(bridgeId));
+              console.log("consumerChannel2: " + consumerChannel2);
 
+                /*
                 var iterator1 = bridgeIdMap.keys();
                 for (var key of iterator1) {
                     console.log("key: " + key);
                     console.log("val: " + bridgeIdMap.get(key));
                     console.log();
                 }
+                */
 
                 console.log("Clearing map");
                 console.log("bridgeIdMap.size - before: " + bridgeIdMap.size);
@@ -183,16 +183,40 @@ function handle_manager_event(evt) {
 
                 console.log("bridgeIdMap.size - after: " + bridgeIdMap.size);
 
-                startTranscription(wavFilePath + bridgeId + "-asterisk-in.wav16",  channel1);
-                startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
+                var consumerWav = wavFilePath + bridgeId + "-asterisk-in-consumer.wav16";
+                var agentWav = wavFilePath + bridgeId + "-asterisk-out-agent.wav16";
+
+                // Start recording here
+
+                console.log("Recording file: " + agentWav);
+                sendAmiAction ({
+                    "Action": "Monitor",
+                    "Channel": agentChannel1,
+                    "File": agentWav,
+                    "Format": "wav16"
+                });
+
+                /*
+                console.log("Recording file: " + consumerWav);
+                sendAmiAction ({
+                    "Action": "Monitor",
+                    "Channel": consumerChannel2,
+                    "File": consumerWav,
+                    "Format": "wav16"
+                });
+                */
+
+                // startTranscription(wavFilePath + bridgeId + "-asterisk-in.wav16",  channel1);
+                // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
+
+                startTranscription(consumerWav);
+                startTranscription(agentWav);
+                // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
             }
 
 
             /*
-
-
-
-                psuedo code:
+                pseudo code:
                 var bridgeId = evt.bridgeuniqueid
                 var channel = evt.channel
                 if(map.getValue(bridgeId) == null){
@@ -207,12 +231,8 @@ function handle_manager_event(evt) {
                         "Format": "wav16"
                     });
 
-
-
                     var channelA = map.getValue(bridgeId)
                     var channelB = channel;
-
-
 
                     startTranscription(wavFilePath + pstnFilename + "-asterisk-in.wav16",  channelA)
                     startTranscription(wavFilePath + pstnFilename + "-asterisk-out.wav16", channelB)
@@ -242,60 +262,90 @@ function handle_manager_event(evt) {
 }
 
 
-function startTranscription(wavFile, channel) {
+function startTranscription(wavFile) {
 
-    /*
-    var stt;
+    var sttEngine;
+  
+    logger.debug('Entering startTranscription() for extension: ' + wavFile);
+
     try {
-        var watsonConfigs = require('./config/watson');
-        stt = new Watson(wavFile, watsonConfigs);
+        var config = JSON.parse(fs.readFileSync('./stt_configs/ibm-watson.json'));
+        config.contentType = "audio/wav; rate=16000";
+        config.smartFormatting = true;
+        pstn = new Watson(file, config);
+        engineCd = 'W';
+        logger.debug("Connected to Watson");
     } catch (err) {
-        console.log('Error error configuring watson');
-        console.log(err);
+        logger.debug('Error loading stt_configs/ibm-watson.json');
+        logger.debug(err);
     }
-    */
-
-    console.log("Entering startTranscription");
-    console.log("wavFile: " + wavFile + ", channel: " + channel);
-
-    var msgTime = 0;
-    var data = {};
-
-    // stt.start(function (data) {
-        if (msgTime === 0) {
-            var d = new Date();
-            msgTime = d.getTime();
-        }
-
-        data.event = "message-stream";
-        data.extension = channel;
-        data.transcript = "Test transcript";
-        data.source = "PSTN";
-        data.sttengine = "W";
-        data.final = "true";
-        data.msgid = msgTime;
-        data.timestamp = msgTime;
-
-        
+      
+    /*
+    var now = new Date();
+    sendAmiAction({
+        "Action": "SendText",
+        "Channel": channel,
+        "Message": JSON.stringify({
+        'event': 'message-stream',
+        'extension': extension,
+        'transcript': 'Extension: '+extension+' has not been configured for ACE Quill. Please add this extension in the administrative research portal.',
+        'source': 'PSTN',
+        'sttengine': '?',
+        'final': true,
+        'timestamp': now,
+        'msgid': now.getTime()
+        })
+    });
+    return;
+    
+    var now = new Date();
+    sendAmiAction({
+      "Action": "SendText",
+      "Channel": channel,
+      "Message": JSON.stringify({
+        'event': 'message-stream',
+        'extension': extension,
+        'transcript': '---Answered---',
+        'source': 'PSTN',
+        'sttengine': engineCd,
+        'final': true,
+        'timestamp': now,
+        'msgid': now.getTime()
+      })
+    });
+  */
+  
+    var sttEngineMsgTime = 0;
+    sttEngine.start(function (data) {
+      if (sttEngineMsgTime === 0) {
+        var d = new Date();
+        sttEngineMsgTime = d.getTime();
+      }
+      data.event = "message-stream"
+      data.source = "PSTN";
+      data.extension = extension;
+      data.msgid = pstnMsgTime;
+      data.sttengine = engineCd;
+          /*
         if (channel) {
-
-                /*
-            sendAmiAction({
-                "Action": "SendText",
-                "ActionID": data.msgid,
-                "Channel": channel,
-                "Message": JSON.stringify(data)
-            });
-            */
-
-            console.log("Recording file: " + wavFile);
-            sendAmiAction ({
-                "Action": "Monitor",
-                "Channel": channel,
-                "File": wavFile,
-                "Format": "wav16"
-            });
+          sendAmiAction({
+            "Action": "SendText",
+            "ActionID": data.msgid,
+            "Channel": channel,
+            "Message": JSON.stringify(data)
+          });
         }
+        */
+
+
+      if (data.final) {
+        logger.debug('PSTN: ' + data.transcript);
+        // fs.appendFileSync(transcriptFilePath + pstnFilename + '.txt', +data.timestamp + ': ' + data.transcript + '\n');
+        //reset pstnMsgTime;
+        sttEngineMsgTime = 0;
+      }
+    });
+
 }
 
 
