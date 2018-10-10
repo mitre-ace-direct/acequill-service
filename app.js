@@ -293,7 +293,7 @@ function startTranscription(wavFile) {
         console.log();
         console.log("#### In try{}")
 
-        var config = JSON.parse(fs.readFileSync('./stt_configs/ibm-watson.json'));
+        var config = JSON.parse(fs.readFileSync('./stt_configs/watson.json'));
 
         console.log("config: " + JSON.stringify(config));
 
