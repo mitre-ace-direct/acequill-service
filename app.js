@@ -223,8 +223,8 @@ function handle_manager_event(evt) {
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-in.wav16",  channel1);
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
 
-                startTranscription(inFile, agentChannel1);
-                startTranscription(outFile, consumerChannel2);
+                startTranscription(inFile, consumerChannel2);
+                startTranscription(outFile, agentChannel1);
                 // startTranscription(agentWav);
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
             }
