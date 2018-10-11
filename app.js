@@ -223,8 +223,8 @@ function handle_manager_event(evt) {
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-in.wav16",  channel1);
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
 
-                startTranscription(inFile);
-                startTranscription(outFile);
+                startTranscription(inFile, agentChannel1);
+                startTranscription(outFile, consumerChannel2);
                 // startTranscription(agentWav);
                 // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
             }
@@ -282,7 +282,7 @@ function handle_manager_event(evt) {
 }
 
 
-function startTranscription(wavFile) {
+function startTranscription(wavFile, channel) {
 
     var sttEngine;
     var engineCd = 'W';
@@ -351,11 +351,12 @@ function startTranscription(wavFile) {
       })
     });
   */
-  
+
+  /*
     var sttEngineMsgTime = 0;
     sttEngine.start(function (data) {
 
-        /*
+
       if (sttEngineMsgTime === 0) {
         var d = new Date();
         sttEngineMsgTime = d.getTime();
@@ -365,7 +366,12 @@ function startTranscription(wavFile) {
       data.extension = extension;
       data.msgid = pstnMsgTime;
       data.sttengine = engineCd;
-          
+    */
+
+   var d = new Date();
+   data.msgid = d.getTime();
+
+
         if (channel) {
           sendAmiAction({
             "Action": "SendText",
@@ -374,7 +380,6 @@ function startTranscription(wavFile) {
             "Message": JSON.stringify(data)
           });
         }
-        */
 
 
       //if (data.final) {
