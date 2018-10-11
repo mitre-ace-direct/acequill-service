@@ -393,7 +393,7 @@ function startTranscription(wavFile, channel) {
 
         sttEngineMsgTime = 0;
       //}
-    });
+    // });
 
 }
 
