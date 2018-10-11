@@ -287,6 +287,8 @@ function startTranscription(wavFile) {
     var engineCd = 'W';
     var data;
   
+    console.log("startTranscription - wavFile: " + wavFile);
+
     logger.debug('Entering startTranscription() for extension: ' + wavFile);
 
     try {
