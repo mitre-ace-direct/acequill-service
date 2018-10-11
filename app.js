@@ -352,11 +352,11 @@ function startTranscription(wavFile, channel) {
     });
   */
 
-  /*
-    var sttEngineMsgTime = 0;
+  
+    // var sttEngineMsgTime = 0;
     sttEngine.start(function (data) {
 
-
+/*
       if (sttEngineMsgTime === 0) {
         var d = new Date();
         sttEngineMsgTime = d.getTime();
@@ -370,6 +370,8 @@ function startTranscription(wavFile, channel) {
 
    var d = new Date();
    data.msgid = d.getTime();
+
+   console.log("data.msgid: " + data.msgid);
 
 
         if (channel) {
@@ -393,7 +395,7 @@ function startTranscription(wavFile, channel) {
 
         sttEngineMsgTime = 0;
       //}
-    // });
+     });
 
 }
 
