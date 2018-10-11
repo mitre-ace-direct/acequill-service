@@ -353,6 +353,8 @@ function startTranscription(wavFile) {
   
     var sttEngineMsgTime = 0;
     sttEngine.start(function (data) {
+
+        /*
       if (sttEngineMsgTime === 0) {
         var d = new Date();
         sttEngineMsgTime = d.getTime();
@@ -371,7 +373,7 @@ function startTranscription(wavFile) {
             "Message": JSON.stringify(data)
           });
         }
-        
+        */
 
 
       if (data.final) {
