@@ -362,7 +362,7 @@ function startTranscription(wavFile) {
       data.extension = extension;
       data.msgid = pstnMsgTime;
       data.sttengine = engineCd;
-          /*
+          
         if (channel) {
           sendAmiAction({
             "Action": "SendText",
@@ -371,7 +371,7 @@ function startTranscription(wavFile) {
             "Message": JSON.stringify(data)
           });
         }
-        */
+        
 
 
       if (data.final) {
