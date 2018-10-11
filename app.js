@@ -377,7 +377,7 @@ function startTranscription(wavFile) {
         */
 
 
-      if (data.final) {
+      //if (data.final) {
         logger.debug('PSTN: ' + data.transcript);
         // fs.appendFileSync(transcriptFilePath + pstnFilename + '.txt', +data.timestamp + ': ' + data.transcript + '\n');
 
@@ -387,7 +387,7 @@ function startTranscription(wavFile) {
         console.log("Transcript: " + JSON.stringify(data));
 
         sttEngineMsgTime = 0;
-      }
+      //}
     });
 
 }
