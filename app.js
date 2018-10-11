@@ -110,76 +110,66 @@ function init_ami() {
     }
 }
 
+// Initialize the Asterisk AMI connection
 init_ami();
+
 
 
 function handle_manager_event(evt) {
 
     switch (evt.event) {
-        case ('DialEnd'):
-            //Listen for DialEnd to indicate a connected call.
-            console.log('****** Processing AMI DialEnd ******');
-        if (evt.dialstatus === 'ANSWER') {
-
-            }
-            break;
 
         case ('BridgeEnter'):
+            /*
+            * BridgeEnter handler logic:
+            * 1. For each call, we will receive two BridgeEnter events, one for each leg of the call 
+            * 2. When we receive the 2nd bridge event, verify that it has the same bridge ID 
+            *   (showing that it is the other leg of the same call)
+            * 3. Retrieve channel IDs for each side of the call (required to record the call)
+            * 4. Call the startTranscription() function for each leg of the call
+            */
+
             console.log('****** BridgeEnter ******');
             console.log(JSON.stringify(evt));
-            //TODO: figure out who each channel belongs to and make two calls to startTranscription one for each leg of the call
 
+            // Extract the Bridge ID and the channel from the event
             var bridgeId = evt.bridgeuniqueid; // Looks like 'd1084052-f50a-4c5d-b459-354e832a9ff5'
             var channel = evt.channel;         // Looks like 'PJSIP/30001-0000001f'
 
             console.log("bridgeId: " + bridgeId);
             console.log("channel: " + channel);
 
-            /*
-            * We will receive two BridgeEnter events, one for each leg of the
-            * call. Once we receive the 2nd bridge event, verify that it has
-            * the same bridge ID (showing that it is the same call). Then,
-            * we can use the channel IDs to record each leg of the call.
-            */
-
             console.log("bridgeIdMap.size: " + bridgeIdMap.size);
-
             console.log("Get return: '" + bridgeIdMap.get(bridgeId) + "'");
 
             if (bridgeIdMap.get(bridgeId) === undefined) {
-              console.log("Received first leg of the call, creating map");
-              console.log(bridgeId + " => " + channel);
-
-              // First leg of the call
-              bridgeIdMap.set(bridgeId, channel);
+    
+                // We haven't seen this bridgeId before, so, store the bridgeId and channel for the first leg of the call
+                bridgeIdMap.set(bridgeId, channel);
+                
+                console.log("Received first leg of the call, creating map");
+                console.log(bridgeId + " => " + channel);   
             }
             else {
-              /*
-              * This is the second leg of the call, we should have all of the
-              * info we need to record.
-              */
-              console.log("Received second leg of the call");
-              console.log(bridgeId + " => " + channel);
-              console.log();
+                
+                // This bridgeId is in the map, so, this is the second leg of the call
+                console.log("Received second leg of the call");
+                console.log(bridgeId + " => " + channel);
+                console.log();
 
-              var agentChannel1 = bridgeIdMap.get(bridgeId);
-              var consumerChannel2 = channel;
+                // Get the agent channel from the map
+                var agentChannel = bridgeIdMap.get(bridgeId);
 
-              console.log("agentChannel1: " + bridgeIdMap.get(bridgeId));
-              console.log("consumerChannel2: " + consumerChannel2);
+                // The consumer channel just arrived in the second BridgeEnter event
+                var consumerChannel = channel;
 
-                /*
-                var iterator1 = bridgeIdMap.keys();
-                for (var key of iterator1) {
-                    console.log("key: " + key);
-                    console.log("val: " + bridgeIdMap.get(key));
-                    console.log();
-                }
-                */
+                console.log("agentChannel: " + bridgeIdMap.get(bridgeId));
+                console.log("consumerChannel: " + consumerChannel);
 
                 console.log("Clearing map");
                 console.log("bridgeIdMap.size - before: " + bridgeIdMap.size);
 
+                // We are finished with this bridgeId, so, remove it from the map
                 bridgeIdMap.delete(bridgeId);
 
                 console.log("bridgeIdMap.size - after: " + bridgeIdMap.size);
@@ -190,81 +180,43 @@ function handle_manager_event(evt) {
                 // var consumerWav = wavFilePath + bridgeId;
                 var wavFilename = wavFilePath + bridgeId;
 
-                console.log("Adding " + agentChannel1 + " to set");
-                channelIdSet.add(agentChannel1);
+                console.log("Adding " + agentChannel + " to set");
+                channelIdSet.add(agentChannel);
 
                 // Start recording here
-
                 console.log("Recording file: " + wavFilename);
                 sendAmiAction ({
                     "Action": "Monitor",
-                    "Channel": agentChannel1,
+                    "Channel": agentChannel,
                     "File": wavFilename,
                     "Format": "wav16"
                 });
 
                 /*
-                console.log("Recording file: " + consumerWav);
-                sendAmiAction ({
-                    "Action": "Monitor",
-                    "Channel": consumerChannel2,
-                    "File": consumerWav,
-                    "Format": "wav16"
-                });
+                * Build the filenames to pass out to startTransciption, Asterisk appends the 
+                * -in.wav16 and -out.wav16 extensions to the files is creates
                 */
-
-                // Pass these out to the startTranscription method
                 var inFile = wavFilePath + bridgeId + "-in.wav16";
                 var outFile = wavFilePath + bridgeId + "-out.wav16";
 
                 console.log("inFile: " + inFile);
                 console.log("outFile: " + outFile);
 
-                // startTranscription(wavFilePath + bridgeId + "-asterisk-in.wav16",  channel1);
-                // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
-
-                startTranscription(inFile, consumerChannel2);
-                startTranscription(outFile, agentChannel1);
-                // startTranscription(agentWav);
-                // startTranscription(wavFilePath + bridgeId + "-asterisk-out.wav16", channel2);
+                // Start the transcription for each channel
+                startTranscription(inFile, consumerChannel);
+                startTranscription(outFile, agentChannel);
             }
-
-
-            /*
-                pseudo code:
-                var bridgeId = evt.bridgeuniqueid
-                var channel = evt.channel
-                if(map.getValue(bridgeId) == null){
-                    map.set(bridgeId, channel)
-                }else{
-                    a map exists so this is event 2
-
-                    sendAmiAction({  // will create two files ...-asterisk-in.wav16 & ...-asterisk-out.wav16
-                        "Action": "Monitor",
-                        "Channel": channel,
-                        "File": wavFilePath + pstnFilename + "-asterisk",
-                        "Format": "wav16"
-                    });
-
-                    var channelA = map.getValue(bridgeId)
-                    var channelB = channel;
-
-                    startTranscription(wavFilePath + pstnFilename + "-asterisk-in.wav16",  channelA)
-                    startTranscription(wavFilePath + pstnFilename + "-asterisk-out.wav16", channelB)
-
-                }
-            */
             break;
 
         case ('Hangup'):
             console.log('****** Hangup ******');
             console.log(JSON.stringify(evt));
 
-            var extString = evt.channel;
-            var extension = extString.split(/[\/,-]/);
-
-            // TODO - Clear map entry for this channel
-
+            /* 
+            * If this set has the channel we stored earlier, use this to send an AMI action
+            * to Asterisk and stop recording. Note, we only need to call stop once on 
+            * this channel (corresponds to the Monitor action above).
+            * */
             if (channelIdSet.has(evt.channel)) {
 
                 console.log("Found a match in the set for " + evt.channel);
@@ -274,9 +226,9 @@ function handle_manager_event(evt) {
                     "Channel": evt.channel
                 });
     
+                // Remove this channel from the set, we're all finished with it
                 channelIdSet.delete(evt.channel);
             }
-
             break;
     }
 }
@@ -285,7 +237,6 @@ function handle_manager_event(evt) {
 function startTranscription(wavFile, channel) {
 
     var sttEngine;
-    var engineCd = 'W';
     var data;
   
     console.log("startTranscription - wavFile: " + wavFile);
@@ -316,43 +267,7 @@ function startTranscription(wavFile, channel) {
         console.log('Error loading stt_configs/ibm-watson.json');
         console.log(err);
     }
-      
-    /*
-    var now = new Date();
-    sendAmiAction({
-        "Action": "SendText",
-        "Channel": channel,
-        "Message": JSON.stringify({
-        'event': 'message-stream',
-        'extension': extension,
-        'transcript': 'Extension: '+extension+' has not been configured for ACE Quill. Please add this extension in the administrative research portal.',
-        'source': 'PSTN',
-        'sttengine': '?',
-        'final': true,
-        'timestamp': now,
-        'msgid': now.getTime()
-        })
-    });
-    return;
-    
-    var now = new Date();
-    sendAmiAction({
-      "Action": "SendText",
-      "Channel": channel,
-      "Message": JSON.stringify({
-        'event': 'message-stream',
-        'extension': extension,
-        'transcript': '---Answered---',
-        'source': 'PSTN',
-        'sttengine': engineCd,
-        'final': true,
-        'timestamp': now,
-        'msgid': now.getTime()
-      })
-    });
-  */
-
-  
+        
     // var sttEngineMsgTime = 0;
     sttEngine.start(function (data) {
 
@@ -396,9 +311,7 @@ function startTranscription(wavFile, channel) {
         sttEngineMsgTime = 0;
       //}
      });
-
 }
-
 
 /**
  * Function to verify the config parameter name and
@@ -432,6 +345,10 @@ function getConfigVal(param_name) {
   return (decodedString.toString());
 }
 
+/**
+ * 
+ * @param {JSON} obj contains AMI action  to be executed 
+ */
 function sendAmiAction(obj) {
 
     console.log("sendAmiAction: " + JSON.stringify(obj));
