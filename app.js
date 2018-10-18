@@ -31,7 +31,7 @@ log4js.configure({
     }]
 });
 */
- 
+
 // Get the name of the config file from the command line (optional)
 nconf.argv().env();
 
@@ -122,8 +122,8 @@ function handle_manager_event(evt) {
         case ('BridgeEnter'):
             /*
             * BridgeEnter handler logic:
-            * 1. For each call, we will receive two BridgeEnter events, one for each leg of the call 
-            * 2. When we receive the 2nd bridge event, verify that it has the same bridge ID 
+            * 1. For each call, we will receive two BridgeEnter events, one for each leg of the call
+            * 2. When we receive the 2nd bridge event, verify that it has the same bridge ID
             *   (showing that it is the other leg of the same call)
             * 3. Retrieve channel IDs for each side of the call (required to record the call)
             * 4. Call the startTranscription() function for each leg of the call
@@ -143,15 +143,15 @@ function handle_manager_event(evt) {
             console.log("Get return: '" + bridgeIdMap.get(bridgeId) + "'");
 
             if (bridgeIdMap.get(bridgeId) === undefined) {
-    
+
                 // We haven't seen this bridgeId before, so, store the bridgeId and channel for the first leg of the call
                 bridgeIdMap.set(bridgeId, channel);
-                
+
                 console.log("Received first leg of the call, creating map");
-                console.log(bridgeId + " => " + channel);   
+                console.log(bridgeId + " => " + channel);
             }
             else {
-                
+
                 // This bridgeId is in the map, so, this is the second leg of the call
                 console.log("Received second leg of the call");
                 console.log(bridgeId + " => " + channel);
@@ -193,7 +193,7 @@ function handle_manager_event(evt) {
                 });
 
                 /*
-                * Build the filenames to pass out to startTransciption, Asterisk appends the 
+                * Build the filenames to pass out to startTransciption, Asterisk appends the
                 * -in.wav16 and -out.wav16 extensions to the files is creates
                 */
                 var inFile = wavFilePath + bridgeId + "-in.wav16";
@@ -212,9 +212,9 @@ function handle_manager_event(evt) {
             console.log('****** Hangup ******');
             console.log(JSON.stringify(evt));
 
-            /* 
+            /*
             * If this set has the channel we stored earlier, use this to send an AMI action
-            * to Asterisk and stop recording. Note, we only need to call stop once on 
+            * to Asterisk and stop recording. Note, we only need to call stop once on
             * this channel (corresponds to the Monitor action above).
             * */
             if (channelIdSet.has(evt.channel)) {
@@ -225,7 +225,7 @@ function handle_manager_event(evt) {
                     "Action": "StopMonitor",
                     "Channel": evt.channel
                 });
-    
+
                 // Remove this channel from the set, we're all finished with it
                 channelIdSet.delete(evt.channel);
             }
@@ -237,8 +237,7 @@ function handle_manager_event(evt) {
 function startTranscription(wavFile, channel) {
 
     var sttEngine;
-    var data;
-  
+
     console.log("startTranscription - wavFile: " + wavFile);
 
     logger.debug('Entering startTranscription() for extension: ' + wavFile);
@@ -249,7 +248,7 @@ function startTranscription(wavFile, channel) {
 
         var config = JSON.parse(fs.readFileSync('./stt_configs/watson.json'));
 
-        
+
 
         config.contentType = "audio/wav; rate=16000";
         config.smartFormatting = true;
@@ -267,7 +266,7 @@ function startTranscription(wavFile, channel) {
         console.log('Error loading stt_configs/ibm-watson.json');
         console.log(err);
     }
-        
+
     var sttEngineMsgTime = 0;
     sttEngine.start(function (data) {
 
@@ -284,8 +283,8 @@ function startTranscription(wavFile, channel) {
     */
 
    var d = new Date();
-   
-   if(sttEngineMsgTime == 0)
+
+   if(sttEngineMsgTime === 0)
    	sttEngineMsgTime = d.getTime();
 
    data.msgid = sttEngineMsgTime;
@@ -349,8 +348,8 @@ function getConfigVal(param_name) {
 }
 
 /**
- * 
- * @param {JSON} obj contains AMI action  to be executed 
+ *
+ * @param {JSON} obj contains AMI action  to be executed
  */
 function sendAmiAction(obj) {
 
@@ -360,7 +359,7 @@ function sendAmiAction(obj) {
       if (err) {
         logger.error('AMI Action error ' + JSON.stringify(err));
       }
-  
+
     });
   }
-  
+
