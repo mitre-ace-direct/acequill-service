@@ -69,7 +69,7 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('commo
 
 // Set log4js level from the config file
 /*
-logger.setLevel(getConfigVal('common:debug_level'));
+logger.level(getConfigVal('common:debug_level'));
 logger.trace('TRACE messages enabled.');
 logger.debug('DEBUG messages enabled.');
 logger.info('INFO messages enabled.');
@@ -268,7 +268,7 @@ function startTranscription(wavFile, channel) {
         console.log(err);
     }
         
-    // var sttEngineMsgTime = 0;
+    var sttEngineMsgTime = 0;
     sttEngine.start(function (data) {
 
 /*
@@ -284,8 +284,11 @@ function startTranscription(wavFile, channel) {
     */
 
    var d = new Date();
-   data.msgid = d.getTime();
+   
+   if(sttEngineMsgTime == 0)
+   	sttEngineMsgTime = d.getTime();
 
+   data.msgid = sttEngineMsgTime;
    console.log("data.msgid: " + data.msgid);
 
 
@@ -299,7 +302,7 @@ function startTranscription(wavFile, channel) {
         }
 
 
-      //if (data.final) {
+      if (data.final) {
         logger.debug('PSTN: ' + data.transcript);
         // fs.appendFileSync(transcriptFilePath + pstnFilename + '.txt', +data.timestamp + ': ' + data.transcript + '\n');
 
@@ -309,7 +312,7 @@ function startTranscription(wavFile, channel) {
         console.log("Transcript: " + JSON.stringify(data));
 
         sttEngineMsgTime = 0;
-      //}
+      }
      });
 }
 
