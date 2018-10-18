@@ -11,7 +11,7 @@ function Watson(file, configs) {
     this.password = configs.password;
     this.contentType = configs.contentType;
     this.smart_formatting = configs.smartFormatting;
-};
+}
 
 Watson.prototype.start = function (callback) {
 
