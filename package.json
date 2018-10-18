@@ -34,6 +34,5 @@
     "serve-favicon": "~2.3.0",
     "socket.io": "~1.7",
     "watson-developer-cloud": "2.32.1"
-
   }
 }
