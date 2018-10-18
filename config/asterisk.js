@@ -15,7 +15,7 @@ for (let el of sections) {
         password = config[el].secret;
         break;
     }
-};
+}
 
 if(!user){
     console.log("---Cannot find Asterisk AMI configurations---");
