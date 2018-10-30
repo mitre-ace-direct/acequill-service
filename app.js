@@ -12,6 +12,7 @@ var wavFilePath = '/tmp/wav/';
 
 // Initialize log4js
 // log4js.loadAppender('file');
+/*
 var logname = 'aqservice';
 log4js.configure({
     appenders: { aqservice: { type: 'file', filename: 'logs/aqservice.log' } },
@@ -19,6 +20,7 @@ log4js.configure({
 });
 
 var logger = log4js.getLogger(logname);
+*/
 
 /*
 log4js.configure({
@@ -240,7 +242,7 @@ function startTranscription(wavFile, channel) {
 
     console.log("startTranscription - wavFile: " + wavFile);
 
-    logger.debug('Entering startTranscription() for extension: ' + wavFile);
+    // logger.debug('Entering startTranscription() for extension: ' + wavFile);
 
     try {
         console.log();
@@ -256,12 +258,12 @@ function startTranscription(wavFile, channel) {
         console.log("config: " + JSON.stringify(config));
 
         sttEngine = new Watson(wavFile, config);
-        logger.debug("Connected to Watson");
+        // logger.debug("Connected to Watson");
 
         console.log("Connected to Watson");
     } catch (err) {
-        logger.debug('Error loading stt_configs/watson.json');
-        logger.debug(err);
+        // logger.debug('Error loading stt_configs/watson.json');
+        // logger.debug(err);
 
         console.log('Error loading stt_configs/ibm-watson.json');
         console.log(err);
@@ -302,7 +304,7 @@ function startTranscription(wavFile, channel) {
 
 
       if (data.final) {
-        logger.debug('PSTN: ' + data.transcript);
+        // logger.debug('PSTN: ' + data.transcript);
         // fs.appendFileSync(transcriptFilePath + pstnFilename + '.txt', +data.timestamp + ': ' + data.transcript + '\n');
 
         console.log("Transcript: " + data.timestamp + ': ' + data.transcript);
@@ -337,11 +339,13 @@ function getConfigVal(param_name) {
     }
   } else {
     //did not find value for param_name
+    /*
     logger.error('');
     logger.error('*******************************************************');
     logger.error('ERROR!!! Config parameter is missing: ' + param_name);
     logger.error('*******************************************************');
     logger.error('');
+    */
     decodedString = "";
   }
   return (decodedString.toString());
@@ -357,7 +361,8 @@ function sendAmiAction(obj) {
 
     ami.action(obj, function (err, res) {
       if (err) {
-        logger.error('AMI Action error ' + JSON.stringify(err));
+        // logger.error('AMI Action error ' + JSON.stringify(err));
+        console.log('AMI Action error ' + JSON.stringify(err));
       }
 
     });
