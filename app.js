@@ -50,7 +50,7 @@ log4js.configure({
     categories: {
       default: {
         appenders: ['aqservice'],
-        level: 'error'
+        level: 'debug'
       }
     }
   })
