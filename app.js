@@ -200,6 +200,7 @@ function handle_manager_event(evt) {
             * 4. Call the startTranscription() function for each leg of the call
             */
 
+            console.log();
             console.log('****** BridgeEnter ******');
             console.log(JSON.stringify(evt));
 
@@ -282,7 +283,7 @@ function handle_manager_event(evt) {
 
                 // TO DO
                 // Insert to MySQL
-                /*
+
                  var mySet = {
                       stt_engine: "stt_engine",
                       content_type: "content_type",
@@ -300,6 +301,7 @@ function handle_manager_event(evt) {
 
                     logger.debug('Call data: ' + JSON.stringify(mySet));
 
+                /*
                     mySqlConnection.query('INSERT INTO research_data SET ?', mySet,
                       function (err, result) {
                         if (err) {
@@ -313,6 +315,7 @@ function handle_manager_event(evt) {
             break;
 
         case ('Hangup'):
+            console.log();
             console.log('****** Hangup ******');
             console.log(JSON.stringify(evt));
 
