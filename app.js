@@ -279,8 +279,11 @@ function handle_manager_event(evt) {
                 var inFile = wavFilePath + bridgeId + "-in.wav16";
                 var outFile = wavFilePath + bridgeId + "-out.wav16";
 
+                console.log();
                 console.log("inFile: " + inFile);
                 console.log("outFile: " + outFile);
+                console.log("consumerChannel: " + consumerChannel);
+                console.log("agentChannel: " + agentChannel);
 
                 // Start the transcription for each channel
                 startTranscription(inFile, consumerChannel);
@@ -304,7 +307,7 @@ function handle_manager_event(evt) {
                       language_out: "language_out"
                     };
 
-                    logger.debug('Call data: ' + JSON.stringify(mySet));
+                console.log('Call data: ' + JSON.stringify(mySet));
 
                 /*
                     mySqlConnection.query('INSERT INTO research_data SET ?', mySet,
