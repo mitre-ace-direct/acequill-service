@@ -195,6 +195,9 @@ function handle_manager_event(evt) {
             console.log('****** BridgeEnter ******');
             console.log(JSON.stringify(evt));
 
+            logger.debug('****** BridgeEnter ******');
+            logger.debug(JSON.stringify(evt));
+
             // Extract the Bridge ID and the channel from the event
             var bridgeId = evt.bridgeuniqueid; // Looks like 'd1084052-f50a-4c5d-b459-354e832a9ff5'
             var channel = evt.channel;         // Looks like 'PJSIP/30001-0000001f'
@@ -304,6 +307,9 @@ function handle_manager_event(evt) {
         case ('Hangup'):
             console.log('****** Hangup ******');
             console.log(JSON.stringify(evt));
+
+            logger.debug('****** Hangup ******');
+            logger.debug(JSON.stringify(evt));
 
             /*
             * If this set has the channel we stored earlier, use this to send an AMI action
