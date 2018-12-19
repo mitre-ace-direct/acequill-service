@@ -55,7 +55,7 @@ log4js.configure({
     }
   })
 
-
+var logger = log4js.getLogger(logname);
 
 // Get the name of the config file from the command line (optional)
 nconf.argv().env();
