@@ -229,11 +229,16 @@ function handle_manager_event(evt) {
 
                 // This bridgeId is in the map, so, this is the second leg of the call
                 console.log("Received second leg of the call");
-                console.log(bridgeId + " => " + channel);
+                console.log("bridgeId: " + bridgeId + " => channel: " + channel);
                 console.log();
 
                 // Get the agent channel from the map
-                var agentChannel = bridgeIdMap.get(bridgeId);
+                // var agentChannel = bridgeIdMap.get(bridgeId);
+
+                var agentChannel = "NOT FOUND";
+                if (bridgeIdMap.has(bridgeId)) {
+                  agentChannel = bridgeIdMap.get(bridgeId);
+                }
 
                 // The consumer channel just arrived in the second BridgeEnter event
                 var consumerChannel = channel;
