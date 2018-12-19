@@ -5,10 +5,13 @@ var nconf = require('nconf');
 var fs = require('fs');
 var cfile = null;
 var Watson = require('./transcription/watson');
+var mysql = require('mysql');
 
 // TODO - Update the config.json
 var transcriptFilePath = '/tmp/transcript';
 var wavFilePath = '/tmp/wav/';
+
+var logname = 'aqservice';
 
 // Initialize log4js
 // log4js.loadAppender('file');
@@ -33,6 +36,26 @@ log4js.configure({
     }]
 });
 */
+
+log4js.configure({
+    appenders: {
+      aqservice: {
+        type: 'dateFile',
+        filename: 'logs/' + logname + '.log',
+        alwaysIncludePattern: false,
+        maxLogSize: 20480,
+        backups: 10
+      }
+    },
+    categories: {
+      default: {
+        appenders: ['aqservice'],
+        level: 'error'
+      }
+    }
+  })
+
+
 
 // Get the name of the config file from the command line (optional)
 nconf.argv().env();
@@ -81,8 +104,46 @@ logger.fatal('FATAL messages enabled.');
 logger.info('Using config file: ' + cfile);
 */
 
+// Get all of the parameters for the MySQL connection
+var dbHost = getConfigVal('database_servers:mysql:host');
+var dbUser = getConfigVal('database_servers:mysql:user');
+var dbPassword = getConfigVal('database_servers:mysql:password');
+var dbName = getConfigVal('database_servers:mysql:ad_database_name');
+var dbPort = parseInt(getConfigVal('database_servers:mysql:port'));
+
+console.log("dbHost:" + dbHost);
+console.log("dbUser:" + dbUser);
+console.log("dbPassword:" + dbPassword);
+console.log("dbName:" + dbName);
+console.log("dbPort:" + dbPort);
+
 var bridgeIdMap = new Map();
 var channelIdSet = new Set();
+
+// Create MySQL connection and connect to the database
+var dbConnection = mysql.createConnection({
+	host: dbHost,
+	user: dbUser,
+	password: dbPassword,
+	database: dbName,
+	port: dbPort
+});
+
+//better error checking for MySQL connection
+dbConnection.connect(function(err) {
+  if (err !== null) {
+    //MySQL connection ERROR
+    console.error('');
+    console.error('*************************************');
+    console.error('ERROR connecting to MySQL. Exiting...');
+    console.error('*************************************');
+    console.error('');
+    console.error(err);
+  } else {
+    //SUCCESSFUL connection
+    console.log("Successfully connected to MySQL");
+  }
+});
 
 var ami = null;
 
@@ -207,6 +268,36 @@ function handle_manager_event(evt) {
                 // Start the transcription for each channel
                 startTranscription(inFile, consumerChannel);
                 startTranscription(outFile, agentChannel);
+
+                // TO DO
+                // Insert to MySQL
+                /*
+                 var mySet = {
+                      stt_engine: "stt_engine",
+                      content_type: "content_type",
+                      smart_formatting: "smart_formatting",
+                      agent_channel: agent_channel,
+                      consumer_channel: consumer_channel,
+                      dest_channel: evt.destchannel,
+                      agent_wav_filepath: outFile,
+                      consumer_wav_filepath: inFile,
+                      device_type: "device_type",
+                      vrs_number: "vrs_number",
+                      language_in: "language_in",
+                      language_out: "language_out"
+                    };
+
+                    logger.debug('Call data: ' + JSON.stringify(mySet));
+
+                    mySqlConnection.query('INSERT INTO research_data SET ?', mySet,
+                      function (err, result) {
+                        if (err) {
+                          logger.debug("Error in INSERT: " + JSON.stringify(err));
+                        } else {
+                          logger.debug('INSERT result: ' + JSON.stringify(result));
+                        }
+                      });
+                */
             }
             break;
 
@@ -230,6 +321,21 @@ function handle_manager_event(evt) {
 
                 // Remove this channel from the set, we're all finished with it
                 channelIdSet.delete(evt.channel);
+
+                // TO DO
+                // Insert to MySQL, calculate call duration
+
+                /*
+
+                // Calculate call duration, update the call_duration field
+
+                var mySet = {
+                    agent_captions: "agent_captions",
+                    consumer_captions: "consumer_captions"
+                  };
+                  */
+
+
             }
             break;
     }
