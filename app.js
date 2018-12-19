@@ -293,18 +293,18 @@ function handle_manager_event(evt) {
                 // Insert to MySQL
 
                  var mySet = {
-                      stt_engine: "stt_engine",
-                      content_type: "content_type",
-                      smart_formatting: "smart_formatting",
-                      agent_channel: agent_channel,
-                      consumer_channel: consumer_channel,
-                      dest_channel: evt.destchannel,
-                      agent_wav_filepath: outFile,
-                      consumer_wav_filepath: inFile,
-                      device_type: "device_type",
-                      vrs_number: "vrs_number",
-                      language_in: "language_in",
-                      language_out: "language_out"
+                      "stt_engine": "stt_engine",
+                      "content_type": "content_type",
+                      "smart_formatting": "smart_formatting",
+                      "agent_channel": agent_channel,
+                      "consumer_channel": consumer_channel,
+                      "dest_channel": evt.destchannel,
+                      "agent_wav_filepath": outFile,
+                      "consumer_wav_filepath": inFile,
+                      "device_type": "device_type",
+                      "vrs_number": "vrs_number",
+                      "language_in": "language_in",
+                      "language_out": "language_out"
                     };
 
                 console.log('Call data: ' + JSON.stringify(mySet));
