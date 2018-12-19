@@ -373,8 +373,8 @@ function startTranscription(wavFile, channel) {
     logger.debug('Entering startTranscription() for extension: ' + wavFile);
 
     try {
-        console.log();
-        console.log("#### In try{}");
+        // console.log();
+        // console.log("#### In try{}");
 
         var config = JSON.parse(fs.readFileSync('./stt_configs/watson.json'));
 
@@ -383,7 +383,7 @@ function startTranscription(wavFile, channel) {
         config.contentType = "audio/wav; rate=16000";
         config.smartFormatting = true;
 
-        console.log("config: " + JSON.stringify(config));
+        // console.log("config: " + JSON.stringify(config));
 
         sttEngine = new Watson(wavFile, config);
         // logger.debug("Connected to Watson");
