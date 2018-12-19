@@ -55,7 +55,15 @@ log4js.configure({
     }
   })
 
-var logger = log4js.getLogger(logname);
+var logger = log4js.getLogger('aqservice');
+logger.level = getConfigVal('common:debug_level');
+logger.trace('TRACE messages enabled.');
+logger.debug('DEBUG messages enabled.');
+logger.info('INFO messages enabled.');
+logger.warn('WARN messages enabled.');
+logger.error('ERROR messages enabled.');
+logger.fatal('FATAL messages enabled.');
+logger.info('Using config file: ' + cfile);
 
 // Get the name of the config file from the command line (optional)
 nconf.argv().env();
@@ -352,9 +360,9 @@ function startTranscription(wavFile, channel) {
 
     var sttEngine;
 
-    console.log("startTranscription - wavFile: " + wavFile);
+    console.log("Entering startTranscription - wavFile: " + wavFile);
 
-    // logger.debug('Entering startTranscription() for extension: ' + wavFile);
+    logger.debug('Entering startTranscription() for extension: ' + wavFile);
 
     try {
         console.log();
