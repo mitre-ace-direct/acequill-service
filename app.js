@@ -546,7 +546,7 @@ function sendAmiAction(obj) {
   function openMySqlConnection() {
     var mysqlConnection = mysql.createConnection({
       host: getConfigVal('database_servers:mysql:user'),
-      user: decode(nconf.get('mysql:user')),
+      user: getConfigVal('mysql:user'),
       password: getConfigVal('database_servers:mysql:password'),
       database: getConfigVal('database_servers:mysql:ad_database_name'),
       port: parseInt(getConfigVal('database_servers:mysql:port')),
