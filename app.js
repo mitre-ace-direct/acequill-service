@@ -327,7 +327,7 @@ function handle_manager_event(evt) {
                     } else {
                         logger.debug("MySQL connection closed");
                     }
-                }
+                });
 
 
             }
