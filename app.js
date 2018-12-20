@@ -292,7 +292,7 @@ function handle_manager_event(evt) {
                 startTranscription(inFile, consumerChannel);
                 startTranscription(outFile, agentChannel);
 
-                var mysqlConnection = openMySqlConnection();
+                var mysqlConnection = openMysqlConnection();
 
                 // Insert into MySQL
                  var mySet = {
@@ -543,7 +543,10 @@ function sendAmiAction(obj) {
     });
   }
 
-  function openMySqlConnection() {
+  function openMysqlConnection() {
+
+    console.log("#### Entering openMysqlConnection()");
+
     var mysqlConnection = mysql.createConnection({
       host: getConfigVal('database_servers:mysql:user'),
       user: getConfigVal('mysql:user'),
