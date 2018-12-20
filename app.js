@@ -205,10 +205,10 @@ function handle_manager_event(evt) {
 
             console.log();
             console.log('****** BridgeEnter ******');
-            console.log(JSON.stringify(evt));
+            console.log(JSON.stringify(evt, null, 4));
 
             logger.debug('****** BridgeEnter ******');
-            logger.debug(JSON.stringify(evt));
+            logger.debug(JSON.stringify(evt, null, 4));
 
             // Extract the Bridge ID and the channel from the event
             var bridgeId = evt.bridgeuniqueid; // Looks like 'd1084052-f50a-4c5d-b459-354e832a9ff5'
@@ -292,6 +292,7 @@ function handle_manager_event(evt) {
                 startTranscription(inFile, consumerChannel);
                 startTranscription(outFile, agentChannel);
 
+                console.log("### Opening a MySQL connection");
                 var mysqlConnection = openMysqlConnection();
 
                 // Insert into MySQL
@@ -311,6 +312,7 @@ function handle_manager_event(evt) {
 
                 console.log('Call data: ' + JSON.stringify(mySet));
 
+                console.log("### Inserting a record into MySQL");
                 mysqlConnection.query('INSERT INTO caption_data SET ?', mySet,
                     function (err, result) {
                       if (err) {
@@ -320,6 +322,7 @@ function handle_manager_event(evt) {
                        }
                     });
 
+                console.log("### Closing the MySQL connection");
                 mysqlConnection.end(function (err) {
                     // The connection is terminated now
                     if (err) {
@@ -336,10 +339,10 @@ function handle_manager_event(evt) {
         case ('Hangup'):
             console.log();
             console.log('****** Hangup ******');
-            console.log(JSON.stringify(evt));
+            console.log(JSON.stringify(evt, null, 4));
 
             logger.debug('****** Hangup ******');
-            logger.debug(JSON.stringify(evt));
+            logger.debug(JSON.stringify(evt, null, 4));
 
             /*
             * If this set has the channel we stored earlier, use this to send an AMI action
