@@ -128,6 +128,7 @@ console.log("dbPort:" + dbPort);
 var bridgeIdMap = new Map();
 var channelIdSet = new Set();
 
+/*
 // Create MySQL connection and connect to the database
 var mysqlConnection = mysql.createConnection({
 	host: dbHost,
@@ -152,6 +153,8 @@ mysqlConnection.connect(function(err) {
     console.log("Successfully connected to MySQL");
   }
 });
+
+*/
 
 var ami = null;
 
@@ -289,9 +292,9 @@ function handle_manager_event(evt) {
                 startTranscription(inFile, consumerChannel);
                 startTranscription(outFile, agentChannel);
 
-                // TO DO
-                // Insert to MySQL
+                var mySqlConnection = openMySqlConnection();
 
+                // Insert into MySQL
                  var mySet = {
                       "stt_engine": "stt_engine",
                       "content_type": "content_type",
@@ -308,7 +311,6 @@ function handle_manager_event(evt) {
 
                 console.log('Call data: ' + JSON.stringify(mySet));
 
-
                 mysqlConnection.query('INSERT INTO caption_data SET ?', mySet,
                     function (err, result) {
                       if (err) {
@@ -317,6 +319,16 @@ function handle_manager_event(evt) {
                           logger.debug('INSERT result: ' + JSON.stringify(result));
                        }
                     });
+
+                mysqlConnection.end(function (err) {
+                    // The connection is terminated now
+                    if (err) {
+                        logger.debug("Error closing MySQL connection: " + JSON.stringify(err));
+                    } else {
+                        logger.debug("MySQL connection closed");
+                    }
+                }
+
 
             }
             break;
@@ -351,12 +363,45 @@ function handle_manager_event(evt) {
 
                 /*
 
+                // Example from AQ research portal
+                var sql = "UPDATE caption_data SET call_end = CURRENT_TIMESTAMP(), ";
+                    sql += "call_duration = UNIX_TIMESTAMP(call_end) - UNIX_TIMESTAMP(call_start)";
+                    sql += " WHERE agent_channel = ?;";
+
                 // Calculate call duration, update the call_duration field
 
                 var mySet = {
                     agent_captions: "agent_captions",
                     consumer_captions: "consumer_captions"
                   };
+
+                  var params = evt.uniqueid;
+
+        logger.debug("Hangup SQL statement: " + sql);
+        logger.debug("Hangup SQL statement: " + params);
+
+        var mySqlConnection = openMySqlConnection();
+
+        mySqlConnection.query(sql, params, function (err, result) {
+          if (err) {
+            throw err;
+            logger.error("Error in UPDATE statement: " + JSON.stringify(err));
+          } else {
+            logger.debug("MySQL INSERT result: " + JSON.stringify(result));
+          }
+        });
+
+        mySqlConnection.end(function (err) {
+          // The connection is terminated now
+          if (err) {
+            logger.error("Error closing MySQL connection: " + JSON.stringify(err));
+          } else {
+            logger.debug("MySQL connection closed in asterisk.js");
+          }
+        });
+
+
+
                   */
 
 
@@ -497,4 +542,27 @@ function sendAmiAction(obj) {
 
     });
   }
+
+  function openMySqlConnection() {
+    var mysqlConnection = mysql.createConnection({
+      host: getConfigVal('database_servers:mysql:user'),
+      user: decode(nconf.get('mysql:user')),
+      password: getConfigVal('database_servers:mysql:password'),
+      database: getConfigVal('database_servers:mysql:ad_database_name'),
+      port: parseInt(getConfigVal('database_servers:mysql:port')),
+      debug: false
+    });
+
+    mysqlConnection.connect(function (err) {
+      if (err) {
+        logger.error("MySQL connection error in app.js");
+        logger.error(err);
+      } else {
+        logger.debug("Connected to MySQL in app.js");
+      }
+    });
+
+    return (mysqlConnection);
+  }
+
 
