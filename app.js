@@ -292,7 +292,7 @@ function handle_manager_event(evt) {
                 startTranscription(inFile, consumerChannel);
                 startTranscription(outFile, agentChannel);
 
-                var mySqlConnection = openMySqlConnection();
+                var mysqlConnection = openMySqlConnection();
 
                 // Insert into MySQL
                  var mySet = {
