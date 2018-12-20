@@ -309,16 +309,16 @@ function handle_manager_event(evt) {
 
                 console.log('Call data: ' + JSON.stringify(mySet));
 
-                /*
-                    mySqlConnection.query('INSERT INTO research_data SET ?', mySet,
-                      function (err, result) {
-                        if (err) {
+
+                mySqlConnection.query('INSERT INTO caption_data SET ?', mySet,
+                    function (err, result) {
+                      if (err) {
                           logger.debug("Error in INSERT: " + JSON.stringify(err));
-                        } else {
+                      } else {
                           logger.debug('INSERT result: ' + JSON.stringify(result));
-                        }
-                      });
-                */
+                       }
+                    });
+
             }
             break;
 
