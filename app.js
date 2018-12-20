@@ -129,7 +129,7 @@ var bridgeIdMap = new Map();
 var channelIdSet = new Set();
 
 // Create MySQL connection and connect to the database
-var dbConnection = mysql.createConnection({
+var mysqlConnection = mysql.createConnection({
 	host: dbHost,
 	user: dbUser,
 	password: dbPassword,
@@ -138,7 +138,7 @@ var dbConnection = mysql.createConnection({
 });
 
 //better error checking for MySQL connection
-dbConnection.connect(function(err) {
+mysqlConnection.connect(function(err) {
   if (err !== null) {
     //MySQL connection ERROR
     console.error('');
@@ -310,7 +310,7 @@ function handle_manager_event(evt) {
                 console.log('Call data: ' + JSON.stringify(mySet));
 
 
-                mySqlConnection.query('INSERT INTO caption_data SET ?', mySet,
+                mysqlConnection.query('INSERT INTO caption_data SET ?', mySet,
                     function (err, result) {
                       if (err) {
                           logger.debug("Error in INSERT: " + JSON.stringify(err));
