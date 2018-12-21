@@ -180,7 +180,7 @@ function init_ami() {
 
         } catch (exp) {
             console.log('Init AMI error' + JSON.stringify(exp));
-        }
+pm2         }
     }
 }
 
@@ -297,6 +297,7 @@ function handle_manager_event(evt) {
 
                 // Insert into MySQL
                  var mySet = {
+                      "unique_id": evt.uniqueid,
                       "stt_engine": "stt_engine",
                       "content_type": "content_type",
                       "smart_formatting": "smart_formatting",
@@ -364,13 +365,16 @@ function handle_manager_event(evt) {
                 // TO DO
                 // Insert to MySQL, calculate call duration
 
-                /*
+
+                console.log("uniqueid: " + evt.uniqueid);
+
 
                 // Example from AQ research portal
                 var sql = "UPDATE caption_data SET call_end = CURRENT_TIMESTAMP(), ";
                     sql += "call_duration = UNIX_TIMESTAMP(call_end) - UNIX_TIMESTAMP(call_start)";
-                    sql += " WHERE agent_channel = ?;";
+                    sql += " WHERE unique_id = ?;";
 
+                    /*
                 // Calculate call duration, update the call_duration field
 
                 var mySet = {
@@ -535,7 +539,7 @@ function getConfigVal(param_name) {
  */
 function sendAmiAction(obj) {
 
-    console.log("sendAmiAction: " + JSON.stringify(obj));
+    console.log("sendAmiAction: " + JSON.stringify(obj, null, 4));
 
     ami.action(obj, function (err, res) {
       if (err) {
