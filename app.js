@@ -376,14 +376,7 @@ function handle_manager_event(evt) {
                     sql += "call_duration = UNIX_TIMESTAMP(call_end) - UNIX_TIMESTAMP(call_start)";
                     sql += " WHERE unique_id = ?;";
 
-                // Calculate call duration, update the call_duration field
-
-                var mySet = {
-                    agent_captions: "agent_captions",
-                    consumer_captions: "consumer_captions"
-                  };
-
-                  var params = evt.linkedid;
+                var params = evt.linkedid;
 
                 logger.debug("Hangup SQL statement: " + sql);
                 logger.debug("Hangup SQL statement: " + params);
