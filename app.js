@@ -180,7 +180,7 @@ function init_ami() {
 
         } catch (exp) {
             console.log('Init AMI error' + JSON.stringify(exp));
-pm2         }
+        }
     }
 }
 
@@ -190,6 +190,8 @@ init_ami();
 
 
 function handle_manager_event(evt) {
+
+    var mysqlConnection;
 
     switch (evt.event) {
 
@@ -293,7 +295,7 @@ function handle_manager_event(evt) {
                 startTranscription(outFile, agentChannel);
 
                 console.log("### Opening a MySQL connection");
-                var mysqlConnection = openMysqlConnection();
+                mysqlConnection = openMysqlConnection();
 
                 // Insert into MySQL
                  var mySet = {
@@ -386,7 +388,7 @@ function handle_manager_event(evt) {
                 logger.debug("Hangup SQL statement: " + sql);
                 logger.debug("Hangup SQL statement: " + params);
 
-                var mysqlConnection = openMysqlConnection();
+                mysqlConnection = openMysqlConnection();
 
                 mysqlConnection.query(sql, params, function (err, result) {
                   if (err) {
@@ -537,12 +539,13 @@ function getConfigVal(param_name) {
  */
 function sendAmiAction(obj) {
 
-    console.log("sendAmiAction: " + JSON.stringify(obj, null, 4));
+    console.log();
+    console.log("Entering sendAmiAction(): " + JSON.stringify(obj, null, 4));
 
     ami.action(obj, function (err, res) {
       if (err) {
         // logger.error('AMI Action error ' + JSON.stringify(err));
-        console.log('AMI Action error ' + JSON.stringify(err));
+        console.log('AMI Action error ' + JSON.stringify(err, null, 4));
       }
 
     });
