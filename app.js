@@ -386,9 +386,9 @@ function handle_manager_event(evt) {
                 logger.debug("Hangup SQL statement: " + sql);
                 logger.debug("Hangup SQL statement: " + params);
 
-                var mySqlConnection = openMySqlConnection();
+                var mysqlConnection = openMysqlConnection();
 
-                mySqlConnection.query(sql, params, function (err, result) {
+                mysqlConnection.query(sql, params, function (err, result) {
                   if (err) {
                     logger.error("Error in UPDATE statement: " + JSON.stringify(err, null, 4));
                     throw err;
@@ -397,7 +397,7 @@ function handle_manager_event(evt) {
                   }
                 });
 
-                mySqlConnection.end(function (err) {
+                mysqlConnection.end(function (err) {
                   // The connection is terminated now
                   if (err) {
                     logger.error("Error closing MySQL connection: " + JSON.stringify(err));
