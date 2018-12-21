@@ -3,7 +3,6 @@ var asteriskConfigs = require('./config/asterisk');
 var log4js = require('log4js');
 var nconf = require('nconf');
 var fs = require('fs');
-var cfile = null;
 var Watson = require('./transcription/watson');
 var mysql = require('mysql');
 
@@ -14,29 +13,6 @@ var wavFilePath = '/tmp/wav/';
 var logname = 'aqservice';
 
 // Initialize log4js
-// log4js.loadAppender('file');
-/*
-var logname = 'aqservice';
-log4js.configure({
-    appenders: { aqservice: { type: 'file', filename: 'logs/aqservice.log' } },
-    categories: { default: { appenders: ['aqservice'], level: 'error' } }
-});
-
-var logger = log4js.getLogger(logname);
-*/
-
-/*
-log4js.configure({
-    appenders: [{
-        type: 'dateFile',
-        filename: 'logs/' + logname + '.log',
-        alwaysIncludePattern: false,
-        maxLogSize: 20480,
-        backups: 10
-    }]
-});
-*/
-
 log4js.configure({
     appenders: {
       aqservice: {
@@ -55,6 +31,7 @@ log4js.configure({
     }
   });
 
+// Create a logger and set the log level
 var logger = log4js.getLogger('aqservice');
 logger.level = getConfigVal('common:debug_level');
 logger.trace('TRACE messages enabled.');
@@ -68,9 +45,10 @@ logger.info('Using config file: ' + cfile);
 // Get the name of the config file from the command line (optional)
 nconf.argv().env();
 
-cfile = '../dat/config.json';
+// Set the name of the config file
+var cfile = '../dat/config.json';
 
-//Validate the incoming JSON config file
+// Validate the incoming JSON config file
 try {
     var content = fs.readFileSync(cfile, 'utf8');
     var myjson = JSON.parse(content);
@@ -85,32 +63,20 @@ try {
     process.exit(1);
 }
 
-
-
 nconf.file({
     file: cfile
 });
 var configobj = JSON.parse(fs.readFileSync(cfile, 'utf8'));
 
-//the presence of a populated cleartext field in config.json means that the file is in clear text
-//remove the field or set it to "" if the file is encoded
+/*
+** The presence of a populated cleartext field in config.json means that the file is in clear text
+** remove the field or set it to "" if the file is encoded
+*/
 var clearText = false;
 if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('common:cleartext') !== "" ) {
     console.log('clearText field is in config.json. assuming file is in clear text');
     clearText = true;
 }
-
-// Set log4js level from the config file
-/*
-logger.level(getConfigVal('common:debug_level'));
-logger.trace('TRACE messages enabled.');
-logger.debug('DEBUG messages enabled.');
-logger.info('INFO messages enabled.');
-logger.warn('WARN messages enabled.');
-logger.error('ERROR messages enabled.');
-logger.fatal('FATAL messages enabled.');
-logger.info('Using config file: ' + cfile);
-*/
 
 // Get all of the parameters for the MySQL connection
 var dbHost = getConfigVal('database_servers:mysql:host');
@@ -127,35 +93,6 @@ console.log("dbPort:" + dbPort);
 
 var bridgeIdMap = new Map();
 var channelIdSet = new Set();
-
-/*
-// Create MySQL connection and connect to the database
-var mysqlConnection = mysql.createConnection({
-	host: dbHost,
-	user: dbUser,
-	password: dbPassword,
-	database: dbName,
-	port: dbPort
-});
-
-//better error checking for MySQL connection
-mysqlConnection.connect(function(err) {
-  if (err !== null) {
-    //MySQL connection ERROR
-    console.error('');
-    console.error('*************************************');
-    console.error('ERROR connecting to MySQL. Exiting...');
-    console.error('*************************************');
-    console.error('');
-    console.error(err);
-  } else {
-    //SUCCESSFUL connection
-    console.log("Successfully connected to MySQL");
-  }
-});
-
-*/
-
 var ami = null;
 
 console.log ("port: " + getConfigVal('asterisk:ami:port') );
@@ -163,6 +100,9 @@ console.log("ip: " + getConfigVal('asterisk:sip:private_ip') );
 console.log("id: " + getConfigVal('asterisk:ami:id') );
 console.log("pass: " + getConfigVal('asterisk:ami:passwd') );
 
+/**
+ * Creates an AMI connection to Asterisk.
+*/
 function init_ami() {
     if (ami === null) {
         try {
@@ -188,7 +128,10 @@ function init_ami() {
 init_ami();
 
 
-
+/**
+ * Event handler for AMI events coming from Asterisk.
+ * @param {object} evt - AMI event from Asterisk.
+ */
 function handle_manager_event(evt) {
 
     var mysqlConnection;
@@ -376,10 +319,11 @@ function handle_manager_event(evt) {
                     sql += "call_duration = UNIX_TIMESTAMP(call_end) - UNIX_TIMESTAMP(call_start)";
                     sql += " WHERE unique_id = ?;";
 
+                /*
+                ** Note that in the BridgeEnter, we log the uniqueid, however, for the HangUp we
+                ** use the linkedid field.
+                */
                 var params = evt.linkedid;
-
-                logger.debug("Hangup SQL statement: " + sql);
-                logger.debug("Hangup SQL statement: " + params);
 
                 mysqlConnection = openMysqlConnection();
 
@@ -405,7 +349,11 @@ function handle_manager_event(evt) {
     }
 }
 
-
+/**
+ * Contacts IBM Watson and starts captioning this channel.
+ * @param {string} wavFile - Name of the WAV file being populated.
+ * @param {string} channel - Asterisk channel corresponding to this leg of the call.
+ */
 function startTranscription(wavFile, channel) {
 
     var sttEngine;
@@ -415,12 +363,8 @@ function startTranscription(wavFile, channel) {
     logger.debug('Entering startTranscription() for extension: ' + wavFile);
 
     try {
-        // console.log();
-        // console.log("#### In try{}");
 
         var config = JSON.parse(fs.readFileSync('./stt_configs/watson.json'));
-
-
 
         config.contentType = "audio/wav; rate=16000";
         config.smartFormatting = true;
@@ -441,18 +385,6 @@ function startTranscription(wavFile, channel) {
 
     var sttEngineMsgTime = 0;
     sttEngine.start(function (data) {
-
-/*
-      if (sttEngineMsgTime === 0) {
-        var d = new Date();
-        sttEngineMsgTime = d.getTime();
-      }
-      data.event = "message-stream";
-      data.source = "PSTN";
-      data.extension = extension;
-      data.msgid = pstnMsgTime;
-      data.sttengine = engineCd;
-    */
 
    var d = new Date();
 
@@ -488,9 +420,8 @@ function startTranscription(wavFile, channel) {
 }
 
 /**
- * Function to verify the config parameter name and
- * decode it from Base64 (if necessary).
- * @param {type} param_name of the config parameter
+ * Function to verify the config parameter name and decode it from Base64 (if necessary).
+ * @param {type} param_name - The config parameter we are trying to retrieve.
  * @returns {unresolved} Decoded readable string.
  */
 function getConfigVal(param_name) {
@@ -522,8 +453,8 @@ function getConfigVal(param_name) {
 }
 
 /**
- *
- * @param {JSON} obj contains AMI action  to be executed
+ * Sends an AMI action to Asterisk.
+ * @param {JSON} obj - Contains AMI action (in JSON format) to be executed.
  */
 function sendAmiAction(obj) {
 
@@ -539,6 +470,10 @@ function sendAmiAction(obj) {
     });
   }
 
+  /**
+  * Opens a connection to MySQL.
+  * @returns {object} - Handle to MySQL.
+  */
   function openMysqlConnection() {
 
     console.log("#### Entering openMysqlConnection()");
