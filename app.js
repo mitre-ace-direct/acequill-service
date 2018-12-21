@@ -311,15 +311,15 @@ function handle_manager_event(evt) {
                       "language_out": "language_out"
                     };
 
-                console.log('Call data: ' + JSON.stringify(mySet));
+                console.log('Call data: ' + JSON.stringify(mySet, null, 4));
 
                 console.log("### Inserting a record into MySQL");
                 mysqlConnection.query('INSERT INTO caption_data SET ?', mySet,
                     function (err, result) {
                       if (err) {
-                          logger.debug("Error in INSERT: " + JSON.stringify(err));
+                          logger.debug("Error in INSERT: " + JSON.stringify(err, null, 4));
                       } else {
-                          logger.debug('INSERT result: ' + JSON.stringify(result));
+                          logger.debug('INSERT result: ' + JSON.stringify(result, null, 4));
                        }
                     });
 
@@ -555,8 +555,8 @@ function sendAmiAction(obj) {
     console.log("#### Entering openMysqlConnection()");
 
     var mysqlConnection = mysql.createConnection({
-      host: getConfigVal('database_servers:mysql:user'),
-      user: getConfigVal('mysql:user'),
+      host: getConfigVal('database_servers:mysql:host'),
+      user: getConfigVal('database_servers:mysql:user'),
       password: getConfigVal('database_servers:mysql:password'),
       database: getConfigVal('database_servers:mysql:ad_database_name'),
       port: parseInt(getConfigVal('database_servers:mysql:port')),
