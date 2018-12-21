@@ -53,7 +53,7 @@ log4js.configure({
         level: 'debug'
       }
     }
-  })
+  });
 
 var logger = log4js.getLogger('aqservice');
 logger.level = getConfigVal('common:debug_level');
@@ -400,11 +400,6 @@ function handle_manager_event(evt) {
                     logger.debug("MySQL connection closed in app.js");
                   }
                 });
-
-
-
-
-
             }
             break;
     }
