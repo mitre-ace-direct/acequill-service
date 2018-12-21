@@ -374,7 +374,7 @@ function handle_manager_event(evt) {
                 // Example from AQ research portal
                 var sql = "UPDATE caption_data SET call_end = CURRENT_TIMESTAMP(), ";
                     sql += "call_duration = UNIX_TIMESTAMP(call_end) - UNIX_TIMESTAMP(call_start)";
-                    sql += " WHERE agent_channel = ?;";
+                    sql += " WHERE unique_id = ?;";
 
                 // Calculate call duration, update the call_duration field
 
