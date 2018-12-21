@@ -366,7 +366,7 @@ function handle_manager_event(evt) {
                 // Insert to MySQL, calculate call duration
 
 
-                console.log("uniqueid: " + evt.uniqueid);
+                console.log("uniqueid: " + evt.linkedid);
 
 
                 // Example from AQ research portal
@@ -374,7 +374,6 @@ function handle_manager_event(evt) {
                     sql += "call_duration = UNIX_TIMESTAMP(call_end) - UNIX_TIMESTAMP(call_start)";
                     sql += " WHERE unique_id = ?;";
 
-                    /*
                 // Calculate call duration, update the call_duration field
 
                 var mySet = {
@@ -382,34 +381,33 @@ function handle_manager_event(evt) {
                     consumer_captions: "consumer_captions"
                   };
 
-                  var params = evt.uniqueid;
+                  var params = evt.linkedid;
 
-        logger.debug("Hangup SQL statement: " + sql);
-        logger.debug("Hangup SQL statement: " + params);
+                logger.debug("Hangup SQL statement: " + sql);
+                logger.debug("Hangup SQL statement: " + params);
 
-        var mySqlConnection = openMySqlConnection();
+                var mySqlConnection = openMySqlConnection();
 
-        mySqlConnection.query(sql, params, function (err, result) {
-          if (err) {
-            throw err;
-            logger.error("Error in UPDATE statement: " + JSON.stringify(err));
-          } else {
-            logger.debug("MySQL INSERT result: " + JSON.stringify(result));
-          }
-        });
+                mySqlConnection.query(sql, params, function (err, result) {
+                  if (err) {
+                    logger.error("Error in UPDATE statement: " + JSON.stringify(err, null, 4));
+                    throw err;
+                  } else {
+                    logger.debug("MySQL INSERT result: " + JSON.stringify(result, null, 4));
+                  }
+                });
 
-        mySqlConnection.end(function (err) {
-          // The connection is terminated now
-          if (err) {
-            logger.error("Error closing MySQL connection: " + JSON.stringify(err));
-          } else {
-            logger.debug("MySQL connection closed in asterisk.js");
-          }
-        });
+                mySqlConnection.end(function (err) {
+                  // The connection is terminated now
+                  if (err) {
+                    logger.error("Error closing MySQL connection: " + JSON.stringify(err));
+                  } else {
+                    logger.debug("MySQL connection closed in app.js");
+                  }
+                });
 
 
 
-                  */
 
 
             }
