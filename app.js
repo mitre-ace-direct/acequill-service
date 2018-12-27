@@ -107,7 +107,13 @@ MongoClient.connect(url, function(err, client) {
 
   mongoDb = client.db(dbName);
 
-  // client.close();
+  mongoDb.createCollection("calls", function(err, res) {
+    if (err) throw err;
+    console.log("Collection created!");
+    db.close();
+  });
+
+  client.close();
 });
 
 var bridgeIdMap = new Map();
@@ -304,10 +310,14 @@ function handle_manager_event(evt) {
 
                   const db = client.db(dbName);
 
-                  insertDocument(mySet, db, function() {
-                    client.close();
+                  db.collection("calls").insertOne(mySet, function(err, res)
+                  {
+                    if (err) throw err;
+                    console.log("1 document inserted into the calls collection");
+                    db.close();
                   });
-              });
+                });
+
 
 
 
