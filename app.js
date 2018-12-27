@@ -6,9 +6,16 @@ var fs = require('fs');
 var Watson = require('./transcription/watson');
 var mysql = require('mysql');
 
+var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
+
 // TODO - Update the config.json
 var transcriptFilePath = '/tmp/transcript';
-var wavFilePath = '/tmp/wav/';
+var wavFilePath = '/tmp/wav';
+
+// MongoDB Params
+var url = 'mongodb://localhost:27017';
+var dbName = 'captions';
 
 var logname = 'aqservice';
 
@@ -90,6 +97,16 @@ console.log("dbUser:" + dbUser);
 console.log("dbPassword:" + dbPassword);
 console.log("dbName:" + dbName);
 console.log("dbPort:" + dbPort);
+
+// Use connect method to connect to the server
+MongoClient.connect(url, function(err, client) {
+  assert.equal(null, err);
+  console.log("Connected successfully to server");
+
+  var db = client.db(dbName);
+
+  // client.close();
+});
 
 var bridgeIdMap = new Map();
 var channelIdSet = new Set();
