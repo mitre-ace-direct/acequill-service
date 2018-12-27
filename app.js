@@ -4,7 +4,7 @@ var log4js = require('log4js');
 var nconf = require('nconf');
 var fs = require('fs');
 var Watson = require('./transcription/watson');
-var mysql = require('mysql');
+// var mysql = require('mysql');
 
 var MongoClient = require('mongodb').MongoClient;
 var assert = require('assert');
@@ -12,10 +12,6 @@ var assert = require('assert');
 // TODO - Update the config.json
 var transcriptFilePath = '/tmp/transcript';
 var wavFilePath = '/tmp/wav';
-
-// MongoDB Params
-var url = 'mongodb://localhost:27017';
-var dbName = 'captions';
 
 var logname = 'aqservice';
 
@@ -86,17 +82,10 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('commo
 }
 
 // Get all of the parameters for the MySQL connection
-var dbHost = getConfigVal('database_servers:mysql:host');
-var dbUser = getConfigVal('database_servers:mysql:user');
-var dbPassword = getConfigVal('database_servers:mysql:password');
 var dbName = getConfigVal('database_servers:mysql:ad_database_name');
-var dbPort = parseInt(getConfigVal('database_servers:mysql:port'));
+var mongoUri = getConfigVal('database_servers:mongodb:connection_uri');
 
-console.log("dbHost:" + dbHost);
-console.log("dbUser:" + dbUser);
-console.log("dbPassword:" + dbPassword);
 console.log("dbName:" + dbName);
-console.log("dbPort:" + dbPort);
 
 var mongoDb;
 
@@ -261,8 +250,8 @@ function handle_manager_event(evt) {
                 startTranscription(inFile, consumerChannel);
                 startTranscription(outFile, agentChannel);
 
-                console.log("### Opening a MySQL connection");
-                mysqlConnection = openMysqlConnection();
+                // console.log("### Opening a MySQL connection");
+                // mysqlConnection = openMysqlConnection();
 
                 // Insert into MySQL
                  var mySet = {
@@ -282,7 +271,9 @@ function handle_manager_event(evt) {
 
                 console.log('Call data: ' + JSON.stringify(mySet, null, 4));
 
-                console.log("### Inserting a record into MySQL");
+                console.log("### Inserting a record into MongoDB");
+
+                /*
                 mysqlConnection.query('INSERT INTO caption_data SET ?', mySet,
                     function (err, result) {
                       if (err) {
@@ -301,6 +292,7 @@ function handle_manager_event(evt) {
                         logger.debug("MySQL connection closed");
                     }
                 });
+                */
 
                 // Use connect method to connect to the server
                 MongoClient.connect(url, function(err, client) {
@@ -313,8 +305,11 @@ function handle_manager_event(evt) {
                   {
                     if (err) throw err;
                     console.log("1 document inserted into the calls collection");
-                    db.close();
+
                   });
+
+                  client.close();
+
                 });
 
 
@@ -356,16 +351,17 @@ function handle_manager_event(evt) {
 
 
                 // Example from AQ research portal
+                /*
                 var sql = "UPDATE caption_data SET call_end = CURRENT_TIMESTAMP(), ";
                     sql += "call_duration = UNIX_TIMESTAMP(call_end) - UNIX_TIMESTAMP(call_start)";
                     sql += " WHERE unique_id = ?;";
-
+                */
                 /*
                 ** Note that in the BridgeEnter, we log the uniqueid, however, for the HangUp we
                 ** use the linkedid field.
                 */
                 var params = evt.linkedid;
-
+/*
                 mysqlConnection = openMysqlConnection();
 
                 mysqlConnection.query(sql, params, function (err, result) {
@@ -385,6 +381,7 @@ function handle_manager_event(evt) {
                     logger.debug("MySQL connection closed in app.js");
                   }
                 });
+*/
             }
             break;
     }
@@ -511,50 +508,6 @@ function sendAmiAction(obj) {
     });
   }
 
-  /**
-  * Opens a connection to MySQL.
-  * @returns {object} - Handle to MySQL.
-  */
-  function openMysqlConnection() {
-
-    console.log("#### Entering openMysqlConnection()");
-
-    var mysqlConnection = mysql.createConnection({
-      host: getConfigVal('database_servers:mysql:host'),
-      user: getConfigVal('database_servers:mysql:user'),
-      password: getConfigVal('database_servers:mysql:password'),
-      database: getConfigVal('database_servers:mysql:ad_database_name'),
-      port: parseInt(getConfigVal('database_servers:mysql:port')),
-      debug: false
-    });
-
-    mysqlConnection.connect(function (err) {
-      if (err) {
-        logger.error("MySQL connection error in app.js");
-        logger.error(err);
-      } else {
-        logger.debug("Connected to MySQL in app.js");
-      }
-    });
-
-    return (mysqlConnection);
-  }
-
-
-
-  const insertDocument = function(data, db, callback) {
-    // Get the documents collection
-    var collection = mongoDb.collection('captions');
-    // Insert some documents
-    collection.insertOne(
-      data, function(err, result) {
-      assert.equal(err, null);
-      assert.equal(1, result.result.n);
-      assert.equal(1, result.ops.length);
-      console.log("Inserted 1 document into the MongoDB collection");
-      callback(result);
-    });
-  };
 
 
 
