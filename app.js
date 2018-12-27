@@ -107,7 +107,7 @@ MongoClient.connect(url, function(err, client) {
 
   const db = client.db(dbName);
 
-  db.createCollection("calls", function(err, res) {
+  db.createCollection("captions", function(err, res) {
     if (err) throw err;
     console.log("Collection created!");
   });
@@ -309,7 +309,7 @@ function handle_manager_event(evt) {
 
                   const db = client.db(dbName);
 
-                  db.collection("calls").insertOne(mySet, function(err, res)
+                  db.collection("captions").insertOne(mySet, function(err, res)
                   {
                     if (err) throw err;
                     console.log("1 document inserted into the calls collection");
