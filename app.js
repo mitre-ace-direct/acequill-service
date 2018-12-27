@@ -101,7 +101,7 @@ console.log("dbPort:" + dbPort);
 // Use connect method to connect to the server
 MongoClient.connect(url, function(err, client) {
   assert.equal(null, err);
-  console.log("Connected successfully to server");
+  console.log("Connected successfully to MongoDB server");
 
   var db = client.db(dbName);
 
@@ -294,6 +294,21 @@ function handle_manager_event(evt) {
                         logger.debug("MySQL connection closed");
                     }
                 });
+
+                var insertDocuments = function(db, callback) {
+                  // Get the documents collection
+                  var collection = db.collection('captions');
+                  // Insert some documents
+                  collection.insertOne(
+                    mySet, function(err, result) {
+                    assert.equal(err, null);
+                    assert.equal(1, result.result.n);
+                    assert.equal(1, result.ops.length);
+                    console.log("Inserted 1 documents into the MongoDB collection");
+                    callback(result);
+                  });
+                }
+
 
 
             }
