@@ -105,9 +105,9 @@ MongoClient.connect(url, function(err, client) {
   assert.equal(null, err);
   console.log("Connected successfully to MongoDB server");
 
-  mongoDb = client.db(dbName);
+  const db = client.db(dbName);
 
-  mongoDb.createCollection("calls", function(err, res) {
+  db.createCollection("calls", function(err, res) {
     if (err) throw err;
     console.log("Collection created!");
   });
