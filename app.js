@@ -98,12 +98,14 @@ console.log("dbPassword:" + dbPassword);
 console.log("dbName:" + dbName);
 console.log("dbPort:" + dbPort);
 
+var mongoDb;
+
 // Use connect method to connect to the server
 MongoClient.connect(url, function(err, client) {
   assert.equal(null, err);
   console.log("Connected successfully to MongoDB server");
 
-  var db = client.db(dbName);
+  mongoDb = client.db(dbName);
 
   // client.close();
 });
@@ -295,19 +297,17 @@ function handle_manager_event(evt) {
                     }
                 });
 
-                var insertDocuments = function(db, callback) {
-                  // Get the documents collection
-                  var collection = db.collection('captions');
-                  // Insert some documents
-                  collection.insertOne(
-                    mySet, function(err, result) {
-                    assert.equal(err, null);
-                    assert.equal(1, result.result.n);
-                    assert.equal(1, result.ops.length);
-                    console.log("Inserted 1 documents into the MongoDB collection");
-                    callback(result);
+                // Use connect method to connect to the server
+                MongoClient.connect(url, function(err, client) {
+                  assert.equal(null, err);
+                  console.log("Connected successfully to server");
+
+                  const db = client.db(dbName);
+
+                  insertDocuments(data, db, function() {
+                    client.close();
                   });
-                }
+              });
 
 
 
@@ -530,5 +530,23 @@ function sendAmiAction(obj) {
 
     return (mysqlConnection);
   }
+
+
+
+  const insertDocument = function(data, db, callback) {
+    // Get the documents collection
+    var collection = mongoDb.collection('captions');
+    // Insert some documents
+    collection.insertOne(
+      mySet, function(err, result) {
+      assert.equal(err, null);
+      assert.equal(1, result.result.n);
+      assert.equal(1, result.ops.length);
+      console.log("Inserted 1 document into the MongoDB collection");
+      callback(result);
+    });
+  };
+
+
 
 
