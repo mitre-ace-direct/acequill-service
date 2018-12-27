@@ -538,7 +538,7 @@ function sendAmiAction(obj) {
     var collection = mongoDb.collection('captions');
     // Insert some documents
     collection.insertOne(
-      mySet, function(err, result) {
+      data, function(err, result) {
       assert.equal(err, null);
       assert.equal(1, result.result.n);
       assert.equal(1, result.ops.length);
