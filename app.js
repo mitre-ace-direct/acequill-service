@@ -110,9 +110,9 @@ MongoClient.connect(url, function(err, client) {
   mongoDb.createCollection("calls", function(err, res) {
     if (err) throw err;
     console.log("Collection created!");
-    client.close();
   });
 
+  client.close();
 });
 
 var bridgeIdMap = new Map();
