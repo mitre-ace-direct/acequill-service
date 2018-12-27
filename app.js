@@ -304,7 +304,7 @@ function handle_manager_event(evt) {
 
                   const db = client.db(dbName);
 
-                  insertDocument(data, db, function() {
+                  insertDocument(mySet, db, function() {
                     client.close();
                   });
               });
