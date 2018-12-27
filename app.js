@@ -90,7 +90,7 @@ console.log("dbName:" + dbName);
 var mongoDb;
 
 // Use connect method to connect to the server
-MongoClient.connect(url, function(err, client) {
+MongoClient.connect(mongoUri, function(err, client) {
   assert.equal(null, err);
   console.log("Connected successfully to MongoDB server");
 
