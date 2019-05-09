@@ -1,27 +1,17 @@
 var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
 var watsonConfigs = require('./config/watson');
-var fs = require('fs');
 var Watson = require('./transcription/watson');
 
-var assert = require('assert');
-
-// TODO - Update the config.json
-var transcriptFilePath = '/tmp/transcript';
 var wavFilePath = '/tmp/wav';
 
 var bridgeIdMap = new Map();
 var channelIdSet = new Set();
 var ami = null;
 
-console.log("port: " + asteriskConfigs.port     );
-console.log("host: " + asteriskConfigs.host     );
-console.log("user: " + asteriskConfigs.user     );
-console.log("pass: " + asteriskConfigs.password );
-
 /**
  * Creates an AMI connection to Asterisk.
-*/
+ */
 function init_ami() {
     if (ami === null) {
         try {
@@ -53,19 +43,17 @@ init_ami();
  */
 function handle_manager_event(evt) {
 
-    var mysqlConnection;
-
     switch (evt.event) {
 
         case ('BridgeEnter'):
             /*
-            * BridgeEnter handler logic:
-            * 1. For each call, we will receive two BridgeEnter events, one for each leg of the call
-            * 2. When we receive the 2nd bridge event, verify that it has the same bridge ID
-            *   (showing that it is the other leg of the same call)
-            * 3. Retrieve channel IDs for each side of the call (required to record the call)
-            * 4. Call the startTranscription() function for each leg of the call
-            */
+             * BridgeEnter handler logic:
+             * 1. For each call, we will receive two BridgeEnter events, one for each leg of the call
+             * 2. When we receive the 2nd bridge event, verify that it has the same bridge ID
+             *   (showing that it is the other leg of the same call)
+             * 3. Retrieve channel IDs for each side of the call (required to record the call)
+             * 4. Call the startTranscription() function for each leg of the call
+             */
 
             console.log();
             console.log('****** BridgeEnter ******');
@@ -73,7 +61,7 @@ function handle_manager_event(evt) {
 
             // Extract the Bridge ID and the channel from the event
             var bridgeId = evt.bridgeuniqueid; // Looks like 'd1084052-f50a-4c5d-b459-354e832a9ff5'
-            var channel = evt.channel;         // Looks like 'PJSIP/30001-0000001f'
+            var channel = evt.channel; // Looks like 'PJSIP/30001-0000001f'
 
             console.log("bridgeId: " + bridgeId);
             console.log("channel: " + channel);
@@ -88,8 +76,7 @@ function handle_manager_event(evt) {
 
                 console.log("Received first leg of the call, creating map");
                 console.log(bridgeId + " => " + channel);
-            }
-            else {
+            } else {
 
                 // This bridgeId is in the map, so, this is the second leg of the call
                 console.log("Received second leg of the call");
@@ -97,11 +84,9 @@ function handle_manager_event(evt) {
                 console.log();
 
                 // Get the agent channel from the map
-                // var agentChannel = bridgeIdMap.get(bridgeId);
-
                 var agentChannel = "NOT FOUND";
                 if (bridgeIdMap.has(bridgeId)) {
-                  agentChannel = bridgeIdMap.get(bridgeId);
+                    agentChannel = bridgeIdMap.get(bridgeId);
                 }
 
                 // The consumer channel just arrived in the second BridgeEnter event
@@ -118,10 +103,6 @@ function handle_manager_event(evt) {
 
                 console.log("bridgeIdMap.size - after: " + bridgeIdMap.size);
 
-                // var consumerWav = wavFilePath + bridgeId + "-asterisk-in-consumer.wav16";
-                // var agentWav = wavFilePath + bridgeId + "-asterisk-out-agent.wav16";
-
-                // var consumerWav = wavFilePath + bridgeId;
                 var wavFilename = wavFilePath + bridgeId;
 
                 console.log("Adding " + agentChannel + " to set");
@@ -129,7 +110,7 @@ function handle_manager_event(evt) {
 
                 // Start recording here
                 console.log("Recording file: " + wavFilename);
-                sendAmiAction ({
+                sendAmiAction({
                     "Action": "Monitor",
                     "Channel": agentChannel,
                     "File": wavFilename,
@@ -137,9 +118,9 @@ function handle_manager_event(evt) {
                 });
 
                 /*
-                * Build the filenames to pass out to startTransciption, Asterisk appends the
-                * -in.wav16 and -out.wav16 extensions to the files is creates
-                */
+                 * Build the filenames to pass out to startTransciption, Asterisk appends the
+                 * -in.wav16 and -out.wav16 extensions to the files is creates
+                 */
                 var inFile = wavFilePath + bridgeId + "-in.wav16";
                 var outFile = wavFilePath + bridgeId + "-out.wav16";
 
@@ -162,15 +143,15 @@ function handle_manager_event(evt) {
             console.log(JSON.stringify(evt, null, 4));
 
             /*
-            * If this set has the channel we stored earlier, use this to send an AMI action
-            * to Asterisk and stop recording. Note, we only need to call stop once on
-            * this channel (corresponds to the Monitor action above).
-            * */
+             * If this set has the channel we stored earlier, use this to send an AMI action
+             * to Asterisk and stop recording. Note, we only need to call stop once on
+             * this channel (corresponds to the Monitor action above).
+             * */
             if (channelIdSet.has(evt.channel)) {
 
                 console.log("Found a match in the set for " + evt.channel);
 
-                sendAmiAction ({
+                sendAmiAction({
                     "Action": "StopMonitor",
                     "Channel": evt.channel
                 });
@@ -189,48 +170,43 @@ function handle_manager_event(evt) {
  */
 function startTranscription(wavFile, channel) {
 
-    var sttEngine;
-
     console.log("Entering startTranscription - wavFile: " + wavFile);
 
     try {
+        var sttEngineMsgTime = 0;
+        var sttEngine = new Watson(wavFile, watsonConfigs);
 
-        sttEngine = new Watson(wavFile, watsonConfigs);
+        sttEngine.start(function (data) {
+
+            if (sttEngineMsgTime === 0) {
+                let d = new Date();
+                sttEngineMsgTime = d.getTime();
+            }
+
+            data.msgid = sttEngineMsgTime;
+
+            console.log("data.msgid: " + data.msgid);
+            console.log("data.transcript: " + data.transcript);
+
+            if (channel) {
+                sendAmiAction({
+                    "Action": "SendText",
+                    "ActionID": data.msgid,
+                    "Channel": channel,
+                    "Message": JSON.stringify(data)
+                });
+            }
+
+            if (data.final) {
+                // reset message time
+                sttEngineMsgTime = 0;
+            }
+        });
 
     } catch (err) {
-
-        console.log('Error loading stt_configs/ibm-watson.json');
+        console.log('Error Initializing Watson');
         console.log(err);
     }
-
-    var sttEngineMsgTime = 0;
-    sttEngine.start(function (data) {
-
-   var d = new Date();
-
-   if(sttEngineMsgTime === 0)
-   	sttEngineMsgTime = d.getTime();
-
-   data.msgid = sttEngineMsgTime;
-   console.log("data.msgid: " + data.msgid);
-
-        if (channel) {
-          sendAmiAction({
-            "Action": "SendText",
-            "ActionID": data.msgid,
-            "Channel": channel,
-            "Message": JSON.stringify(data)
-          });
-        }
-
-
-      if (data.final) {
-
-        console.log("Transcript: " + JSON.stringify(data, null, 4));
-        // reset message time
-        sttEngineMsgTime = 0;
-      }
-     });
 }
 
 
@@ -243,16 +219,9 @@ function sendAmiAction(obj) {
     console.log();
     console.log("Entering sendAmiAction(): " + JSON.stringify(obj, null, 4));
 
-    ami.action(obj, function (err, res) {
-      if (err) {
-        // logger.error('AMI Action error ' + JSON.stringify(err));
-        console.log('AMI Action error ' + JSON.stringify(err, null, 4));
-      }
-
+    ami.action(obj, function(err, res) {
+        if (err) {
+            console.log('AMI Action error ' + JSON.stringify(err, null, 4));
+        }
     });
-  }
-
-
-
-
-
+}
