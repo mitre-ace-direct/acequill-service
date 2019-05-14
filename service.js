@@ -12,6 +12,7 @@ var nconf = require('nconf');
 var fs = require('fs');
 
 var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
 
 // Set the name of the config file
 var cfile = '../dat/config.json';
