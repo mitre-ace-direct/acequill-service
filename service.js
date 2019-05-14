@@ -51,6 +51,7 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('commo
 var dbName = getConfigVal('database_servers:mongodb:database_name');
 var collectionName = getConfigVal('database_servers:mongodb:caption_collection_name');
 var mongoUri = getConfigVal('database_servers:mongodb:connection_uri');
+var dbConnection;
 
 console.log("dbName:" + dbName);
 console.log("mongoUri:" + mongoUri);
@@ -60,14 +61,15 @@ MongoClient.connect(mongoUri, function(err, client) {
   assert.equal(null, err);
   console.log("Connected successfully to MongoDB server");
 
-  const db = client.db(dbName);
+  // const db = client.db(dbName);
+  dbConnection = client.db(dbName);
 
-  db.createCollection(collectionName, function(err, res) {
+  dbConnection.createCollection(collectionName, function(err, res) {
     if (err) throw err;
     console.log("Collection created!");
   });
 
-  client.close();
+  // client.close();
 });
 
 
@@ -280,24 +282,25 @@ function sendAmiAction(obj) {
 
     console.log();
     console.log("Entering sendAmiAction(): " + JSON.stringify(obj, null, 4));
-
+/*
     MongoClient.connect(mongoUri, function(err, client) {
         assert.equal(null, err);
         console.log("Connected successfully to server");
 
         const db = client.db(dbName);
-
-        db.collection(collectionName).insertOne(obj, function(err, res)
+*/
+        dbConnection.collection(collectionName).insertOne(obj, function(err, res)
         {
           if (err) throw err;
           console.log("1 document inserted into the captions collection");
 
         });
 
+/*
         client.close();
 
       });
-
+*/
 
     ami.action(obj, function(err, res) {
         if (err) {
