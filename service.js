@@ -8,6 +8,8 @@ var wavFilePath = '/tmp/wav';
 var bridgeIdMap = new Map();
 var channelIdSet = new Set();
 var ami = null;
+var nconf = require('nconf');
+var fs = require('fs');
 
 var MongoClient = require('mongodb').MongoClient;
 
@@ -302,3 +304,37 @@ function sendAmiAction(obj) {
         }
     });
 }
+
+/**
+ * Function to verify the config parameter name and decode it from Base64 (if necessary).
+ * @param {type} param_name - The config parameter we are trying to retrieve.
+ * @returns {unresolved} Decoded readable string.
+ */
+function getConfigVal(param_name) {
+    var val = nconf.get(param_name);
+    var decodedString = null;
+
+    if (typeof val !== 'undefined' && val !== null) {
+      //found value for param_name
+
+
+      if (clearText) {
+
+        decodedString = val;
+      } else {
+        decodedString = new Buffer(val, 'base64');
+      }
+    } else {
+      //did not find value for param_name
+      /*
+      logger.error('');
+      logger.error('*******************************************************');
+      logger.error('ERROR!!! Config parameter is missing: ' + param_name);
+      logger.error('*******************************************************');
+      logger.error('');
+      */
+      decodedString = "";
+    }
+    return (decodedString.toString());
+  }
+
