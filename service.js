@@ -194,12 +194,13 @@ function handle_manager_event(evt) {
                 console.log();
                 console.log("inFile: " + inFile);
                 console.log("outFile: " + outFile);
+                console.log("uniqueid:" + evt.uniqueid);
                 console.log("consumerChannel: " + consumerChannel);
                 console.log("agentChannel: " + agentChannel);
 
                 // Start the transcription for each channel
-                startTranscription(inFile, consumerChannel);
-                startTranscription(outFile, agentChannel);
+                startTranscription(inFile, consumerChannel, evt.uniqueid);
+                startTranscription(outFile, agentChannel, evt.uniqueid);
 
             }
             break;
@@ -235,7 +236,7 @@ function handle_manager_event(evt) {
  * @param {string} wavFile - Name of the WAV file being populated.
  * @param {string} channel - Asterisk channel corresponding to this leg of the call.
  */
-function startTranscription(wavFile, channel) {
+function startTranscription(wavFile, channel, callid) {
 
     console.log("Entering startTranscription - wavFile: " + wavFile);
 
@@ -264,6 +265,7 @@ function startTranscription(wavFile, channel) {
                 });
 
                 data.channel = channel;
+		data.callid = callid;
 
                 dbConnection.collection(collectionName).insertOne(data, function(err, res) {
                     if (err) console.log("Mongo Error on Insert");
