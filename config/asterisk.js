@@ -3,8 +3,8 @@
 var fs = require('fs');
 var ini = require('ini');
 
-const manager_conf = './config/manager.conf';
-//const manager_conf = '/etc/asterisk/manager.conf';
+//const manager_conf = './config/manager.conf';
+const manager_conf = '/etc/asterisk/manager.conf';
 var config = ini.parse(fs.readFileSync(manager_conf, 'utf-8'));
 var user, password;
 var sections = Object.keys(config);

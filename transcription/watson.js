@@ -21,8 +21,8 @@ function Watson(file, configs) {
     this.file = file;
     this.username = configs.username;
     this.password = configs.password;
-    this.contentType = configs.contentType;
-    this.smart_formatting = configs.smartFormatting;
+    this.contentType = "audio/wav; rate=16000";
+    this.smart_formatting = true;
 };
 
 Watson.prototype.start = function (callback) {

@@ -12,7 +12,6 @@ var nconf = require('nconf');
 var fs = require('fs');
 
 var MongoClient = require('mongodb').MongoClient;
-var assert = require('assert');
 
 // Set the name of the config file
 var cfile = '../dat/config.json';
@@ -58,18 +57,22 @@ console.log("mongoUri:" + mongoUri);
 
 // Use connect method to connect to the server and create the collection
 MongoClient.connect(mongoUri, function(err, client) {
-  assert.equal(null, err);
-  console.log("Connected successfully to MongoDB server");
+    if(err){
+        console.log("ERROR CONNECTING TO MONGO SERVER. Exiting...");
+        process.exit(1);
+    }else{
+        console.log("Connected successfully to MongoDB server");
 
-  // const db = client.db(dbName);
-  dbConnection = client.db(dbName);
+        dbConnection = client.db(dbName);
 
-  dbConnection.createCollection(collectionName, function(err, res) {
-    if (err) throw err;
-    console.log("Collection created!");
-  });
-
-  // client.close();
+        dbConnection.createCollection(collectionName, function(err, res) {
+            if (err) {
+                console.log("Error Creating Mongo Collection: " + err);
+            }else{
+                console.log("Collection created!");
+            }
+        });
+    }
 });
 
 
@@ -259,6 +262,14 @@ function startTranscription(wavFile, channel) {
                     "Channel": channel,
                     "Message": JSON.stringify(data)
                 });
+
+                data.channel = channel;
+
+                dbConnection.collection(collectionName).insertOne(data, function(err, res) {
+                    if (err) console.log("Mongo Error on Insert");
+                    //console.log("1 document inserted into the captions collection");
+                });
+
             }
 
             if (data.final) {
@@ -282,25 +293,6 @@ function sendAmiAction(obj) {
 
     console.log();
     console.log("Entering sendAmiAction(): " + JSON.stringify(obj, null, 4));
-/*
-    MongoClient.connect(mongoUri, function(err, client) {
-        assert.equal(null, err);
-        console.log("Connected successfully to server");
-
-        const db = client.db(dbName);
-*/
-        dbConnection.collection(collectionName).insertOne(obj, function(err, res)
-        {
-          if (err) throw err;
-          console.log("1 document inserted into the captions collection");
-
-        });
-
-/*
-        client.close();
-
-      });
-*/
 
     ami.action(obj, function(err, res) {
         if (err) {
