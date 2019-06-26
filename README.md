@@ -22,23 +22,42 @@ The ACE Quill service provides caption support in ACE Direct. Because the ACE
 Quill service resides on a different server, it isn't part of the automated
 installation script.
 
-Note, captions are optional in ACE Direct and will require an IBM Account and credit card for billing. Pricing information for the Watson captioning service can be found [here](https://www.ibm.com/cloud/watson-speech-to-text/pricing).
+Note, captions are optional in ACE Direct and will require an IBM Account and
+credit card for billing. Pricing information for the Watson captioning service
+can be found [here](https://www.ibm.com/cloud/watson-speech-to-text/pricing).
 
-To manually install the ACE Quill captioning service:
-1. Clone this repository
+### Install the ACE Quill Captioning Service
+1. Clone this repository onto the same server that is running Asterisk
 1. Clone the dat repo in the same folder and follow the configuration
 instructions.
 1. Download and install [Node.js](https://nodejs.org/en/)
 1. In an elevated command prompt, run `npm install -g pm2`
 
 ### IBM Watson Configuration
-1. The ACE Quill service uses the IBM Watson speech-to-text engine to support
+1. The ACE Quill service uses the IBM Watson speech to text engine to support
 captions and requires an [IBM Cloud](https://www.ibm.com/cloud) account and
 credit card to support billing
-1. The location of the SSL key and certificate is specified in the
-dat/config.json file with the common:https:certificate and common:https:private_key parameters in the form of full-path/file (e.g., /home/centos/ssl/mycert.pem and /home/centos/ssl/mykey.pem)
-1. Additional information can be found in the ACE Direct Platform Release document
+1. Create an IBM Watson account and create a speech to text resource
+1. Download the credentials JSON file which should have the following format:
+```
+{
+  "apikey": "XXXX",
+  "iam_apikey_description": "Auto-generated for key XXXX",
+  "iam_apikey_name": "Auto-generated service credentials",
+  "iam_role_crn": "XXXX",
+  "iam_serviceid_crn": "XXXX",
+  "url": "xxxx"
+}```
+1. Copy the contents of the JSON file into stt_configs/watson.json
 
 ### Starting the Service
 1. To start the ACE Quill node server with pm2, run `pm2 start process.json`
-1. To verify the service is running, type `pm2 status`
+1. To verify the service is running, type `pm2 status` and you should see output similar to this:
+
+```
+┌──────────────────┬────┬──────┬───────┬────────┬─────────┬────────┬─────┬───────────┬────────┬──────────┐
+│ App name         │ id │ mode │ pid   │ status │ restart │ uptime │ cpu │ mem       │ user   │ watching │
+├──────────────────┼────┼──────┼───────┼────────┼─────────┼────────┼─────┼───────────┼────────┼──────────┤
+│ ACEQuill-Service │ 0  │ fork │ 30780 │ online │ 0       │ 0s     │ 36% │ 12.5 MB   │ centos │ disabled │
+└──────────────────┴────┴──────┴───────┴────────┴─────────┴────────┴─────┴───────────┴────────┴──────────┘
+```
