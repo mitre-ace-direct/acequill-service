@@ -47,7 +47,8 @@ credit card to support billing
   "iam_role_crn": "XXXX",
   "iam_serviceid_crn": "XXXX",
   "url": "xxxx"
-}```
+}
+```
 1. Copy the contents of the JSON file into stt_configs/watson.json
 
 ### Starting the Service
