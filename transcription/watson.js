@@ -17,30 +17,44 @@ var fs = require('fs');
 var GrowingFile = require('growing-file');
 
 
+
 function Watson(file, configs) {
     this.file = file;
-    this.username = configs.username;
-    this.password = configs.password;
+    this.iam_apikey = configs.iam_apikey;
+    this.url = configs.url;
+    this.proxy = configs.proxy;
+    this.proxy_port = configs.proxy_port;
     this.contentType = "audio/wav; rate=16000";
     this.smart_formatting = true;
 };
 
 Watson.prototype.start = function (callback) {
 
-    var speech_to_text = new SpeechToTextV1({
-        username: this.username,
-        password: this.password,
-        url: 'wss://stream.watsonplatform.net/speech-to-text/api/v1/recognize'
-    });
+    var speechParams = {
+        iam_apikey: this.iam_apikey,
+        url: this.url
+    }
 
+    if (this.proxy) {
+        var tunnel = require('tunnel');
+        speechParams.httpsAgent = tunnel.httpsOverHttp({
+            proxy: {
+                host: this.proxy,
+                port: this.proxy_port,
+            },
+        });
+        speechParams.proxy = false;
+    }
 
-        console.log('Before recognize stream');
+    var speech_to_text = new SpeechToTextV1(speechParams);
+
+    console.log('Before recognize stream');
 
     var recognizeStream = speech_to_text.recognizeUsingWebSocket({
         content_type: this.contentType,
         smart_formatting: this.smart_formatting,
         interim_results: true,
-        objectMode:true
+        objectMode: true
     }).on('data', function (data) {
         console.log('In data handler');
         var results = {
@@ -56,7 +70,10 @@ Watson.prototype.start = function (callback) {
         console.log('error: ' + err.toString());
     });
 
-    GrowingFile.open(this.file, {timeout: 50000, interval: 100}).pipe(recognizeStream);
+    GrowingFile.open(this.file, {
+        timeout: 50000,
+        interval: 100
+    }).pipe(recognizeStream);
 };
 
 module.exports = Watson;

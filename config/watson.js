@@ -1,4 +1,6 @@
  module.exports = {
-    username: process.env.WATSON_USERNAME || "4228305b-92e3-4a2d-a02a-1eae31f25d3d", // Set string if not using ENV
-    password: process.env.WATSON_PASSWORD ||  "syH7uYP1dzKm" // Set string if not using ENV
+    iam_apikey: process.env.WATSON_IAM_APIKEY || "uM4obmJ2m0-wU7NsHQz-9BLbggHtKo0QrsE6lXrt9ptR", // Set string if not using ENV
+    url: process.env.WATSON_URL ||  "https://gateway-wdc.watsonplatform.net/speech-to-text/api", // Set string if not using ENV
+    proxy: '10.202.1.215',
+    proxy_port: '3128'
 }

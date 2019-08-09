@@ -2,21 +2,22 @@
   "name": "acequill-service",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "service.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./app.js"
+    "start": "node ./service.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "asterisk-manager": "^0.1.16",
     "growing-file": "0.1.3",
-    "ibm-watson": "^4.1.0",
+    "ibm-watson": "4.3.3",
     "ini": "^1.3.5",
     "log4js": "^4.5.1",
     "mongodb": "^3.2.7",
     "nconf": "^0.10.0",
-    "proxy-agent": "^3.1.0"
+    "proxy-agent": "^3.1.0",
+    "tunnel": "0.0.6"
   }
 }

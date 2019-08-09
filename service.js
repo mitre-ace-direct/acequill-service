@@ -199,9 +199,12 @@ function handle_manager_event(evt) {
                 console.log("agentChannel: " + agentChannel);
 
                 // Start the transcription for each channel
-                startTranscription(inFile, consumerChannel, evt.uniqueid);
-                startTranscription(outFile, agentChannel, evt.uniqueid);
-
+                // Test if extension is webrtc (30000 or 90000)
+                const webrtcExt = new RegExp("PJSIP\/(3|9)");
+                if(webrtcExt.test(consumerChannel))
+                        startTranscription(inFile, consumerChannel, evt.uniqueid);
+                if(webrtcExt.test(agentChannel))
+                        startTranscription(outFile, agentChannel, evt.uniqueid);
             }
             break;
 
@@ -335,4 +338,3 @@ function getConfigVal(param_name) {
     }
     return (decodedString.toString());
   }
-

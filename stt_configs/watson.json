@@ -1,4 +1,6 @@
 {
-  "username": "4228305b-92e3-4a2d-a02a-1eae31f25d3d",
-  "password": "syH7uYP1dzKm"
+    "iam_apikey": "uM4obmJ2m0-wU7NsHQz-9BLbggHtKo0QrsE6lXrt9ptR",
+    "url": "https://gateway-wdc.watsonplatform.net/speech-to-text/api",
+    "proxy": "10.202.1.215",
+    "proxy_port": "3128"
 }
