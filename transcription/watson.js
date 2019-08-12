@@ -48,8 +48,6 @@ Watson.prototype.start = function (callback) {
 
     var speech_to_text = new SpeechToTextV1(speechParams);
 
-    console.log('Before recognize stream');
-
     var recognizeStream = speech_to_text.recognizeUsingWebSocket({
         content_type: this.contentType,
         smart_formatting: this.smart_formatting,
@@ -66,8 +64,7 @@ Watson.prototype.start = function (callback) {
         console.log('results:' + results);
         callback(results);
     }).on('error', function (err) {
-        console.log('Watson Session Timeout');
-        console.log('error: ' + err.toString());
+        console.log(err.toString());
     });
 
     GrowingFile.open(this.file, {
