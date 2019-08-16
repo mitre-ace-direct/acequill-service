@@ -38,18 +38,12 @@ instructions.
 captions and requires an [IBM Cloud](https://www.ibm.com/cloud) account and
 credit card to support billing
 1. Create an IBM Watson account and create a speech to text resource
-1. Download the credentials JSON file which should have the following format:
+1. Download the credentials file which should have the following format:
 ```
-{
-  "apikey": "XXXX",
-  "iam_apikey_description": "Auto-generated for key XXXX",
-  "iam_apikey_name": "Auto-generated service credentials",
-  "iam_role_crn": "XXXX",
-  "iam_serviceid_crn": "XXXX",
-  "url": "xxxx"
-}
+SPEECH_TO_TEXT_IAM_APIKEY=<API KEY HERE>
+SPEECH_TO_TEXT_URL=<WATSON URL HERE>
 ```
-1. Copy the contents of the JSON file into stt_configs/watson.json
+1. Copy the API key and URL into stt_configs/watson.json
 
 ### Starting the Service
 1. To start the ACE Quill node server with pm2, run `pm2 start process.json`
