@@ -46,6 +46,11 @@ Watson.prototype.start = function (callback) {
         speechParams.proxy = false;
     }
 
+    let gf = GrowingFile.open(this.file, {
+        timeout: 25000,
+        interval: 100
+    });
+
     var speech_to_text = new SpeechToTextV1(speechParams);
 
     var recognizeStream = speech_to_text.recognizeUsingWebSocket({
@@ -62,23 +67,27 @@ Watson.prototype.start = function (callback) {
         };
         console.log('results:' + results);
         callback(results);
+    }).on('open', function () {
+        console.log("Websocket to watson is open. Resume GrowingFile.")
+        gf.resume();
     }).on('error', function (err) {
         console.log(err.toString());
     });
 
-    let gf = GrowingFile.open(this.file, {
-        timeout: 25000,
-        interval: 100
-    })
 
     //  _write is usually reserved for piping a filestream
     // due to an issue with back pressure callback not unpausing
     // the data stream pipe() was switched to this event handler
+    var first = true;
     gf.on('data', (data) => {
         // callback is required by _write, omitting it will crash the service.
         recognizeStream._write(data, null, function () {
             return true;
         });
+        if (first) {
+            gf.pause();
+            first = false;
+        }
     }).on('end', () => {
         console.log('FILE HAS ENDED');
         recognizeStream.finish();
