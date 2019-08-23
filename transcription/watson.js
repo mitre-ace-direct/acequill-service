@@ -60,17 +60,30 @@ Watson.prototype.start = function (callback) {
             'final': data.results[0].final,
             'timestamp': new Date()
         };
-
         console.log('results:' + results);
         callback(results);
     }).on('error', function (err) {
         console.log(err.toString());
     });
 
-    GrowingFile.open(this.file, {
-        timeout: 50000,
+    let gf = GrowingFile.open(this.file, {
+        timeout: 25000,
         interval: 100
-    }).pipe(recognizeStream);
+    })
+
+    //  _write is usually reserved for piping a filestream
+    // due to an issue with back pressure callback not unpausing
+    // the data stream pipe() was switched to this event handler
+    gf.on('data', (data) => {
+        // callback is required by _write, omitting it will crash the service.
+        recognizeStream._write(data, null, function () {
+            return true;
+        });
+    }).on('end', () => {
+        console.log('FILE HAS ENDED');
+        recognizeStream.finish();
+    })
+
 };
 
 module.exports = Watson;
