@@ -60,11 +60,15 @@ Watson.prototype.start = function (callback) {
         objectMode: true
     }).on('data', function (data) {
         console.log('In data handler');
-        var results = {
-            'transcript': data.results[0].alternatives[0].transcript,
-            'final': data.results[0].final,
-            'timestamp': new Date()
-        };
+
+        if (data.results[0]) {
+            var results = {
+                'transcript': data.results[0].alternatives[0].transcript,
+                'final': data.results[0].final,
+                'timestamp': new Date()
+            };
+        }
+
         console.log('results:' + results);
         callback(results);
     }).on('open', function () {
