@@ -11,7 +11,7 @@ var ami = null;
 var nconf = require('nconf');
 var fs = require('fs');
 
-var MongoClient = require('mongodb').MongoClient;
+// var MongoClient = require('mongodb').MongoClient;
 
 // Set the name of the config file
 var cfile = '../dat/config.json';
@@ -46,6 +46,7 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('commo
     clearText = true;
 }
 
+/*
 // Get all of the parameters for the MongoDB connection
 var dbName = getConfigVal('database_servers:mongodb:database_name');
 var collectionName = getConfigVal('database_servers:mongodb:caption_collection_name');
@@ -74,6 +75,7 @@ MongoClient.connect(mongoUri, function(err, client) {
         });
     }
 });
+*/
 
 
 /**
@@ -268,12 +270,14 @@ function startTranscription(wavFile, channel, callid) {
                 });
 
                 data.channel = channel;
-		data.callid = callid;
+		        data.callid = callid;
 
+                /*
                 dbConnection.collection(collectionName).insertOne(data, function(err, res) {
                     if (err) console.log("Mongo Error on Insert");
                     //console.log("1 document inserted into the captions collection");
                 });
+                */
 
             }
 
