@@ -1,3 +1,4 @@
+'use strict';
 /*
                                  NOTICE
 
@@ -15,8 +16,10 @@ McLean, VA 22102-7539, (703) 983-6000.
 var SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
 var fs = require('fs');
 var GrowingFile = require('growing-file');
+const { IamAuthenticator } = require('ibm-watson/auth');
 
-
+//'xTydnpW9xtIWFeXU1x0QLa8k3xv1KyC-NEt521sueK6a'
+//'https://stream.watsonplatform.net/speech-to-text/api'
 
 function Watson(file, configs) {
     this.file = file;
@@ -24,54 +27,59 @@ function Watson(file, configs) {
     this.url = configs.url;
     this.proxy = configs.proxy;
     this.proxy_port = configs.proxy_port;
+
     this.contentType = "audio/wav; rate=16000";
     this.smart_formatting = true;
+    this.interminResults = true;
+    this.objectMode = true;
 }
 
 Watson.prototype.start = function (callback) {
 
-    var speechParams = {
-        iam_apikey: this.iam_apikey,
+    var speechToTextParams = {
         url: this.url
+    };
+
+    var iamParams = {
+       apikey: this.iam_apikey
     };
 
     if (this.proxy) {
         var tunnel = require('tunnel');
-        speechParams.httpsAgent = tunnel.httpsOverHttp({
+        var agent  = tunnel.httpsOverHttp({
             proxy: {
                 host: this.proxy,
                 port: this.proxy_port,
             },
         });
-        speechParams.proxy = false;
+        iamParams.httpsAgent = agent;
+        iamParams.proxy = false;
+        speechToTextParams.httpsAgent = agent;
+        speechToTextParams.proxy = false;
+    } else {
+        // For testing only
+        //iamParams.disableSslVerification = true;   
     }
 
-    let gf = GrowingFile.open(this.file, {
-        timeout: 25000,
-        interval: 100
-    });
-
-    var speech_to_text = new SpeechToTextV1(speechParams);
+    speechToTextParams.authenticator = new IamAuthenticator(iamParams);
+    
+    var speech_to_text = new SpeechToTextV1(speechToTextParams);
 
     var recognizeStream = speech_to_text.recognizeUsingWebSocket({
         content_type: this.contentType,
         smart_formatting: this.smart_formatting,
-        interim_results: true,
-        objectMode: true
+        interim_results: this.interimResults,
+        objectMode: this.objectMode
     }).on('data', function (data) {
-        console.log('In data handler');
-
         if (data.results[0]) {
             var results = {
                 'transcript': data.results[0].alternatives[0].transcript,
                 'final': data.results[0].final,
                 'timestamp': new Date()
             };
-
             console.log('results:' + results);
             callback(results);
         }
-
     }).on('open', function () {
         console.log("Websocket to watson is open. Resume GrowingFile.");
         gf.resume();
@@ -79,6 +87,10 @@ Watson.prototype.start = function (callback) {
         console.log(err.toString());
     });
 
+    let gf = GrowingFile.open(this.file, {
+        timeout: 25000,
+        interval: 100
+    });
 
     //  _write is usually reserved for piping a filestream
     // due to an issue with back pressure callback not unpausing

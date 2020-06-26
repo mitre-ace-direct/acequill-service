@@ -11,73 +11,6 @@ var ami = null;
 var nconf = require('nconf');
 var fs = require('fs');
 
-// var MongoClient = require('mongodb').MongoClient;
-
-// Set the name of the config file
-var cfile = '../dat/config.json';
-
-// Validate the incoming JSON config file
-try {
-    var content = fs.readFileSync(cfile, 'utf8');
-    var myjson = JSON.parse(content);
-    console.log("Valid JSON config file");
-} catch (ex) {
-    console.log("");
-    console.log("*******************************************************");
-    console.log("Error! Malformed configuration file: " + cfile);
-    console.log('Exiting...');
-    console.log("*******************************************************");
-    console.log("");
-    process.exit(1);
-}
-
-nconf.file({
-    file: cfile
-});
-var configobj = JSON.parse(fs.readFileSync(cfile, 'utf8'));
-
-/*
-** The presence of a populated cleartext field in config.json means that the file is in clear text
-** remove the field or set it to "" if the file is encoded
-*/
-var clearText = false;
-if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('common:cleartext') !== "" ) {
-    console.log('clearText field is in config.json. assuming file is in clear text');
-    clearText = true;
-}
-
-/*
-// Get all of the parameters for the MongoDB connection
-var dbName = getConfigVal('database_servers:mongodb:database_name');
-var collectionName = getConfigVal('database_servers:mongodb:caption_collection_name');
-var mongoUri = getConfigVal('database_servers:mongodb:connection_uri');
-var dbConnection;
-
-console.log("dbName:" + dbName);
-console.log("mongoUri:" + mongoUri);
-
-// Use connect method to connect to the server and create the collection
-MongoClient.connect(mongoUri, function(err, client) {
-    if(err){
-        console.log("ERROR CONNECTING TO MONGO SERVER. Exiting...");
-        process.exit(1);
-    }else{
-        console.log("Connected successfully to MongoDB server");
-
-        dbConnection = client.db(dbName);
-
-        dbConnection.createCollection(collectionName, function(err, res) {
-            if (err) {
-                console.log("Error Creating Mongo Collection: " + err);
-            }else{
-                console.log("Collection created!");
-            }
-        });
-    }
-});
-*/
-
-
 /**
  * Creates an AMI connection to Asterisk.
  */
@@ -94,7 +27,16 @@ function init_ami() {
             ami.keepConnected();
             // Define event handlers here
             ami.on('managerevent', handle_manager_event);
-            console.log('Connected to Asterisk');
+            console.log(`
+ █████╗  ██████╗███████╗     ██████╗ ██╗   ██╗██╗██╗     ██╗     
+██╔══██╗██╔════╝██╔════╝    ██╔═══██╗██║   ██║██║██║     ██║     
+███████║██║     █████╗      ██║   ██║██║   ██║██║██║     ██║     
+██╔══██║██║     ██╔══╝      ██║▄▄ ██║██║   ██║██║██║     ██║     
+██║  ██║╚██████╗███████╗    ╚██████╔╝╚██████╔╝██║███████╗███████╗
+╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══▀▀═╝  ╚═════╝ ╚═╝╚══════╝╚══════╝
+                                                                 
+Started Successfully...
+`);
 
         } catch (exp) {
             console.log('Init AMI error' + JSON.stringify(exp));
@@ -271,14 +213,6 @@ function startTranscription(wavFile, channel, callid) {
 
                 data.channel = channel;
 		        data.callid = callid;
-
-                /*
-                dbConnection.collection(collectionName).insertOne(data, function(err, res) {
-                    if (err) console.log("Mongo Error on Insert");
-                    //console.log("1 document inserted into the captions collection");
-                });
-                */
-
             }
 
             if (data.final) {
@@ -310,35 +244,3 @@ function sendAmiAction(obj) {
     });
 }
 
-/**
- * Function to verify the config parameter name and decode it from Base64 (if necessary).
- * @param {type} param_name - The config parameter we are trying to retrieve.
- * @returns {unresolved} Decoded readable string.
- */
-function getConfigVal(param_name) {
-    var val = nconf.get(param_name);
-    var decodedString = null;
-
-    if (typeof val !== 'undefined' && val !== null) {
-      //found value for param_name
-
-
-      if (clearText) {
-
-        decodedString = val;
-      } else {
-        decodedString = new Buffer(val, 'base64');
-      }
-    } else {
-      //did not find value for param_name
-      /*
-      logger.error('');
-      logger.error('*******************************************************');
-      logger.error('ERROR!!! Config parameter is missing: ' + param_name);
-      logger.error('*******************************************************');
-      logger.error('');
-      */
-      decodedString = "";
-    }
-    return (decodedString.toString());
-  }
