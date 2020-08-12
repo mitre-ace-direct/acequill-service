@@ -26,6 +26,7 @@ function Watson(file, configs) {
     this.proxy_port = configs.proxy_port;
     this.contentType = "audio/wav; rate=16000";
     this.smart_formatting = true;
+    this.language = getCodes(config.langCd);
 }
 
 Watson.prototype.start = function (callback) {
@@ -57,7 +58,10 @@ Watson.prototype.start = function (callback) {
         content_type: this.contentType,
         smart_formatting: this.smart_formatting,
         interim_results: true,
-        objectMode: true
+        objectMode: true,
+        model: (this.language.model) ? this.language.model : 'en-US_Broadband',
+        dialect: (this.language.dialect) ? this.language.dialect : 'en-US',
+
     }).on('data', function (data) {
         console.log('In data handler');
 
@@ -99,5 +103,24 @@ Watson.prototype.start = function (callback) {
     });
 
 };
+
+function getCodes(langCd) {
+    let codes = {
+        dialect: "en-US",
+        model: "en-US_BroadbandModel"
+    };
+    switch (langCd) {
+        case 'en':
+            codes.dialect = "en-US";
+            codes.model = "en-US_BroadbandModel";
+            break;
+        case 'es':
+            codes.dialect = "es-US";
+            codes.model = "es-MX_BroadbandModel";
+            break;
+    }
+    return codes;
+}
+
 
 module.exports = Watson;

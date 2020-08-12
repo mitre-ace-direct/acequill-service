@@ -2,7 +2,7 @@ var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
 var watsonConfigs = require('./config/watson');
 var Watson = require('./transcription/watson');
-
+var RedisManager = require('./utils/redisManager');
 var wavFilePath = '/tmp/wav';
 
 var bridgeIdMap = new Map();
@@ -10,31 +10,6 @@ var channelIdSet = new Set();
 var ami = null;
 var nconf = require('nconf');
 var fs = require('fs');
-
-// var MongoClient = require('mongodb').MongoClient;
-
-// Set the name of the config file
-var cfile = '../dat/config.json';
-
-// Validate the incoming JSON config file
-try {
-    var content = fs.readFileSync(cfile, 'utf8');
-    var myjson = JSON.parse(content);
-    console.log("Valid JSON config file");
-} catch (ex) {
-    console.log("");
-    console.log("*******************************************************");
-    console.log("Error! Malformed configuration file: " + cfile);
-    console.log('Exiting...');
-    console.log("*******************************************************");
-    console.log("");
-    process.exit(1);
-}
-
-nconf.file({
-    file: cfile
-});
-var configobj = JSON.parse(fs.readFileSync(cfile, 'utf8'));
 
 /*
 ** The presence of a populated cleartext field in config.json means that the file is in clear text
@@ -45,37 +20,6 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('commo
     console.log('clearText field is in config.json. assuming file is in clear text');
     clearText = true;
 }
-
-/*
-// Get all of the parameters for the MongoDB connection
-var dbName = getConfigVal('database_servers:mongodb:database_name');
-var collectionName = getConfigVal('database_servers:mongodb:caption_collection_name');
-var mongoUri = getConfigVal('database_servers:mongodb:connection_uri');
-var dbConnection;
-
-console.log("dbName:" + dbName);
-console.log("mongoUri:" + mongoUri);
-
-// Use connect method to connect to the server and create the collection
-MongoClient.connect(mongoUri, function(err, client) {
-    if(err){
-        console.log("ERROR CONNECTING TO MONGO SERVER. Exiting...");
-        process.exit(1);
-    }else{
-        console.log("Connected successfully to MongoDB server");
-
-        dbConnection = client.db(dbName);
-
-        dbConnection.createCollection(collectionName, function(err, res) {
-            if (err) {
-                console.log("Error Creating Mongo Collection: " + err);
-            }else{
-                console.log("Collection created!");
-            }
-        });
-    }
-});
-*/
 
 
 /**
@@ -102,6 +46,8 @@ function init_ami() {
     }
 }
 
+// Create Redis Client
+const rClient = new RedisManager();
 // Initialize the Asterisk AMI connection
 init_ami();
 
@@ -203,10 +149,16 @@ function handle_manager_event(evt) {
                 // Start the transcription for each channel
                 // Test if extension is webrtc (30000 or 90000)
                 const webrtcExt = new RegExp("PJSIP\/(3|9)");
-                if(webrtcExt.test(consumerChannel))
-                        startTranscription(inFile, consumerChannel, evt.uniqueid);
-                if(webrtcExt.test(agentChannel))
-                        startTranscription(outFile, agentChannel, evt.uniqueid);
+                if(webrtcExt.test(consumerChannel)){
+                        rClient.getLanguageByExtension(d, function(langCd){
+                            startTranscription(inFile, consumerChannel, evt.uniqueid, langCd);
+                        });
+                    }
+                if(webrtcExt.test(agentChannel)){
+                    rClient.getLanguageByExtension(d, function(langCd){
+                        startTranscription(outFile, agentChannel, evt.uniqueid, langCd);
+                    });
+                }
             }
             break;
 
@@ -241,12 +193,13 @@ function handle_manager_event(evt) {
  * @param {string} wavFile - Name of the WAV file being populated.
  * @param {string} channel - Asterisk channel corresponding to this leg of the call.
  */
-function startTranscription(wavFile, channel, callid) {
+function startTranscription(wavFile, channel, callid, langCd) {
 
     console.log("Entering startTranscription - wavFile: " + wavFile);
 
     try {
         var sttEngineMsgTime = 0;
+        watsonConfigs.langCd = langCd;
         var sttEngine = new Watson(wavFile, watsonConfigs);
 
         sttEngine.start(function (data) {
@@ -271,13 +224,6 @@ function startTranscription(wavFile, channel, callid) {
 
                 data.channel = channel;
 		        data.callid = callid;
-
-                /*
-                dbConnection.collection(collectionName).insertOne(data, function(err, res) {
-                    if (err) console.log("Mongo Error on Insert");
-                    //console.log("1 document inserted into the captions collection");
-                });
-                */
 
             }
 
