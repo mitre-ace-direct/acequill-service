@@ -15,7 +15,7 @@ McLean, VA 22102-7539, (703) 983-6000.
 var SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
 var fs = require('fs');
 var GrowingFile = require('growing-file');
-
+const { IamAuthenticator } = require('ibm-watson/auth');
 
 
 function Watson(file, configs) {
@@ -26,38 +26,47 @@ function Watson(file, configs) {
     this.proxy_port = configs.proxy_port;
     this.contentType = "audio/wav; rate=16000";
     this.smart_formatting = true;
-    this.language = getCodes(config.langCd);
+    this.interminResults = true;
+    this.objectMode = true;
+    this.language = getCodes(configs.langCd);
 }
 
 Watson.prototype.start = function (callback) {
-
-    var speechParams = {
-        iam_apikey: this.iam_apikey,
+    var speechToTextParams = {
         url: this.url
+    };
+
+    var iamParams = {
+       apikey: this.iam_apikey
     };
 
     if (this.proxy) {
         var tunnel = require('tunnel');
-        speechParams.httpsAgent = tunnel.httpsOverHttp({
+        var agent  = tunnel.httpsOverHttp({
             proxy: {
                 host: this.proxy,
                 port: this.proxy_port,
             },
         });
-        speechParams.proxy = false;
-    }
+        iamParams.httpsAgent = agent;
+        iamParams.proxy = false;
+        speechToTextParams.httpsAgent = agent;
+        speechToTextParams.proxy = false; 
+   }
 
     let gf = GrowingFile.open(this.file, {
         timeout: 25000,
         interval: 100
     });
 
-    var speech_to_text = new SpeechToTextV1(speechParams);
+    speechToTextParams.authenticator = new IamAuthenticator(iamParams);
 
+    var speech_to_text = new SpeechToTextV1(speechToTextParams);
+ 
     var recognizeStream = speech_to_text.recognizeUsingWebSocket({
         content_type: this.contentType,
-        smart_formatting: this.smart_formatting,
-        interim_results: true,
+        smartFormatting: this.smart_formatting,
+        interimResults: true,
         objectMode: true,
         model: (this.language.model) ? this.language.model : 'en-US_Broadband',
         dialect: (this.language.dialect) ? this.language.dialect : 'en-US',
@@ -119,6 +128,8 @@ function getCodes(langCd) {
             codes.model = "es-MX_BroadbandModel";
             break;
     }
+    console.log(langCd)
+    console.log(JSON.stringify(codes))
     return codes;
 }
 

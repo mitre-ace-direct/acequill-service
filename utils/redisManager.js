@@ -1,5 +1,5 @@
 const redis = require("redis");
-const config = require("./../configs/redis.js");
+const config = require("./../config/redis.js");
 
 function RedisManager() {
   this.client = redis.createClient(config.port,config.host);

@@ -150,12 +150,12 @@ function handle_manager_event(evt) {
                 // Test if extension is webrtc (30000 or 90000)
                 const webrtcExt = new RegExp("PJSIP\/(3|9)");
                 if(webrtcExt.test(consumerChannel)){
-                        rClient.getLanguageByExtension(d, function(langCd){
+                        rClient.getLanguageByExtension(consumerChannel.substring(6,11), function(langCd){
                             startTranscription(inFile, consumerChannel, evt.uniqueid, langCd);
                         });
                     }
                 if(webrtcExt.test(agentChannel)){
-                    rClient.getLanguageByExtension(d, function(langCd){
+                    rClient.getLanguageByExtension(agentChannel.substring(6,11), function(langCd){
                         startTranscription(outFile, agentChannel, evt.uniqueid, langCd);
                     });
                 }
