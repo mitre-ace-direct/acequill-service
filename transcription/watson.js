@@ -67,9 +67,12 @@ Watson.prototype.start = function (callback) {
 
     var recognizeStream = speech_to_text.recognizeUsingWebSocket({
         content_type: this.contentType,
-        smart_formatting: this.smart_formatting,
-        interim_results: this.interimResults,
-        objectMode: this.objectMode
+        smartFormatting: this.smart_formatting,
+        interimResults: true,
+        objectMode: true,
+        model: (this.language.model) ? this.language.model : 'en-US_Broadband',
+       // dialect: (this.language.dialect) ? this.language.dialect : 'en-US',
+
     }).on('data', function (data) {
         if (data.results[0]) {
             var results = {
@@ -111,5 +114,60 @@ Watson.prototype.start = function (callback) {
     });
 
 };
+
+function getCodes(langCd) {
+    let codes = {
+        dialect: "en-US",
+        model: "en-US_BroadbandModel"
+    };
+    switch (langCd) {
+        case 'en': // English (US)
+            codes.dialect = "en-US";
+            codes.model = "en-US_BroadbandModel";
+            break;
+        case 'es': // Spanish (Mexican)
+            codes.dialect = "es-US";
+            codes.model = "es-MX_BroadbandModel";
+            break;
+        case 'ar': // Arabic (Modern Standard)
+            codes.dialect = "";
+            codes.model = "ar-AR_BroadbandModel";
+            break;
+        case 'br': // Brazilian Portuguese
+            codes.dialect = "";
+            codes.model = "pt-BR_BroadbandModel";
+            break;
+        case 'cn': // Chinese (Mandarin)
+            codes.dialect = "";
+            codes.model = "zh-CN_BroadbandModel";
+            break;
+        case 'nl': // Dutch
+            codes.dialect = "";
+            codes.model = "nl-NL_BroadbandModel";
+            break;
+        case 'fr': // French
+            codes.dialect = "";
+            codes.model = "fr-FR_BroadbandModel";
+            break;
+        case 'de': // German
+            codes.dialect = "";
+            codes.model = "de-DE_BroadbandModel";
+            break;
+        case 'it': // Italian
+            codes.dialect = "";
+            codes.model = "it-IT_BroadbandModel";
+            break;
+        case 'jp': // Japanese
+            codes.dialect = "";
+            codes.model = "ja-JP_BroadbandModel";
+            break;
+        case 'kr': // Korean
+            codes.dialect = "";
+            codes.model = "ko-KR_BroadbandModel";
+            break;
+    }
+    return codes;
+}
+
 
 module.exports = Watson;
