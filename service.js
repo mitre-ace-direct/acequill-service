@@ -2,7 +2,7 @@ var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
 var watsonConfigs = require('./config/watson');
 var Watson = require('./transcription/watson');
-
+var RedisManager = require('./utils/redisManager');
 var wavFilePath = '/tmp/wav';
 
 var bridgeIdMap = new Map();
@@ -10,6 +10,17 @@ var channelIdSet = new Set();
 var ami = null;
 var nconf = require('nconf');
 var fs = require('fs');
+
+/*
+** The presence of a populated cleartext field in config.json means that the file is in clear text
+** remove the field or set it to "" if the file is encoded
+*/
+var clearText = false;
+if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('common:cleartext') !== "" ) {
+    console.log('clearText field is in config.json. assuming file is in clear text');
+    clearText = true;
+}
+
 
 /**
  * Creates an AMI connection to Asterisk.
@@ -27,16 +38,7 @@ function init_ami() {
             ami.keepConnected();
             // Define event handlers here
             ami.on('managerevent', handle_manager_event);
-            console.log(`
- █████╗  ██████╗███████╗     ██████╗ ██╗   ██╗██╗██╗     ██╗     
-██╔══██╗██╔════╝██╔════╝    ██╔═══██╗██║   ██║██║██║     ██║     
-███████║██║     █████╗      ██║   ██║██║   ██║██║██║     ██║     
-██╔══██║██║     ██╔══╝      ██║▄▄ ██║██║   ██║██║██║     ██║     
-██║  ██║╚██████╗███████╗    ╚██████╔╝╚██████╔╝██║███████╗███████╗
-╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══▀▀═╝  ╚═════╝ ╚═╝╚══════╝╚══════╝
-                                                                 
-Started Successfully...
-`);
+            console.log('Connected to Asterisk');
 
         } catch (exp) {
             console.log('Init AMI error' + JSON.stringify(exp));
@@ -44,6 +46,8 @@ Started Successfully...
     }
 }
 
+// Create Redis Client
+const rClient = new RedisManager();
 // Initialize the Asterisk AMI connection
 init_ami();
 
@@ -145,10 +149,16 @@ function handle_manager_event(evt) {
                 // Start the transcription for each channel
                 // Test if extension is webrtc (30000 or 90000)
                 const webrtcExt = new RegExp("PJSIP\/(3|9)");
-                if(webrtcExt.test(consumerChannel))
-                        startTranscription(inFile, consumerChannel, evt.uniqueid);
-                if(webrtcExt.test(agentChannel))
-                        startTranscription(outFile, agentChannel, evt.uniqueid);
+                if(webrtcExt.test(consumerChannel)){
+                        rClient.getLanguageByExtension(consumerChannel.substring(6,11), function(langCd){
+                            startTranscription(inFile, consumerChannel, evt.uniqueid, langCd);
+                        });
+                    }
+                if(webrtcExt.test(agentChannel)){
+                    rClient.getLanguageByExtension(agentChannel.substring(6,11), function(langCd){
+                        startTranscription(outFile, agentChannel, evt.uniqueid, langCd);
+                    });
+                }
             }
             break;
 
@@ -183,12 +193,13 @@ function handle_manager_event(evt) {
  * @param {string} wavFile - Name of the WAV file being populated.
  * @param {string} channel - Asterisk channel corresponding to this leg of the call.
  */
-function startTranscription(wavFile, channel, callid) {
+function startTranscription(wavFile, channel, callid, langCd) {
 
     console.log("Entering startTranscription - wavFile: " + wavFile);
 
     try {
         var sttEngineMsgTime = 0;
+        watsonConfigs.langCd = langCd;
         var sttEngine = new Watson(wavFile, watsonConfigs);
 
         sttEngine.start(function (data) {
@@ -213,6 +224,7 @@ function startTranscription(wavFile, channel, callid) {
 
                 data.channel = channel;
 		        data.callid = callid;
+
             }
 
             if (data.final) {
@@ -244,3 +256,35 @@ function sendAmiAction(obj) {
     });
 }
 
+/**
+ * Function to verify the config parameter name and decode it from Base64 (if necessary).
+ * @param {type} param_name - The config parameter we are trying to retrieve.
+ * @returns {unresolved} Decoded readable string.
+ */
+function getConfigVal(param_name) {
+    var val = nconf.get(param_name);
+    var decodedString = null;
+
+    if (typeof val !== 'undefined' && val !== null) {
+      //found value for param_name
+
+
+      if (clearText) {
+
+        decodedString = val;
+      } else {
+        decodedString = new Buffer(val, 'base64');
+      }
+    } else {
+      //did not find value for param_name
+      /*
+      logger.error('');
+      logger.error('*******************************************************');
+      logger.error('ERROR!!! Config parameter is missing: ' + param_name);
+      logger.error('*******************************************************');
+      logger.error('');
+      */
+      decodedString = "";
+    }
+    return (decodedString.toString());
+  }

@@ -1,4 +1,3 @@
-'use strict';
 /*
                                  NOTICE
 
@@ -18,8 +17,6 @@ var fs = require('fs');
 var GrowingFile = require('growing-file');
 const { IamAuthenticator } = require('ibm-watson/auth');
 
-//'xTydnpW9xtIWFeXU1x0QLa8k3xv1KyC-NEt521sueK6a'
-//'https://stream.watsonplatform.net/speech-to-text/api'
 
 function Watson(file, configs) {
     this.file = file;
@@ -27,15 +24,14 @@ function Watson(file, configs) {
     this.url = configs.url;
     this.proxy = configs.proxy;
     this.proxy_port = configs.proxy_port;
-
     this.contentType = "audio/wav; rate=16000";
     this.smart_formatting = true;
     this.interminResults = true;
     this.objectMode = true;
+    this.language = getCodes(configs.langCd);
 }
 
 Watson.prototype.start = function (callback) {
-
     var speechToTextParams = {
         url: this.url
     };
@@ -55,34 +51,40 @@ Watson.prototype.start = function (callback) {
         iamParams.httpsAgent = agent;
         iamParams.proxy = false;
         speechToTextParams.httpsAgent = agent;
-        speechToTextParams.proxy = false;
-    } else {
-        // For testing only
-        //iamParams.disableSslVerification = true;   
-    }
+        speechToTextParams.proxy = false; 
+   }
+
+    let gf = GrowingFile.open(this.file, {
+        timeout: 25000,
+        interval: 100
+    });
 
     speechToTextParams.authenticator = new IamAuthenticator(iamParams);
-    
-    var speech_to_text = new SpeechToTextV1(speechToTextParams);
 
+    var speech_to_text = new SpeechToTextV1(speechToTextParams);
+ 
     var recognizeStream = speech_to_text.recognizeUsingWebSocket({
         content_type: this.contentType,
         smartFormatting: this.smart_formatting,
         interimResults: true,
         objectMode: true,
         model: (this.language.model) ? this.language.model : 'en-US_Broadband',
-       // dialect: (this.language.dialect) ? this.language.dialect : 'en-US',
+        dialect: (this.language.dialect) ? this.language.dialect : 'en-US',
 
     }).on('data', function (data) {
+        console.log('In data handler');
+
         if (data.results[0]) {
             var results = {
                 'transcript': data.results[0].alternatives[0].transcript,
                 'final': data.results[0].final,
                 'timestamp': new Date()
             };
+
             console.log('results:' + results);
             callback(results);
         }
+
     }).on('open', function () {
         console.log("Websocket to watson is open. Resume GrowingFile.");
         gf.resume();
@@ -90,10 +92,6 @@ Watson.prototype.start = function (callback) {
         console.log(err.toString());
     });
 
-    let gf = GrowingFile.open(this.file, {
-        timeout: 25000,
-        interval: 100
-    });
 
     //  _write is usually reserved for piping a filestream
     // due to an issue with back pressure callback not unpausing
@@ -121,51 +119,17 @@ function getCodes(langCd) {
         model: "en-US_BroadbandModel"
     };
     switch (langCd) {
-        case 'en': // English (US)
+        case 'en':
             codes.dialect = "en-US";
             codes.model = "en-US_BroadbandModel";
             break;
-        case 'es': // Spanish (Mexican)
+        case 'es':
             codes.dialect = "es-US";
             codes.model = "es-MX_BroadbandModel";
             break;
-        case 'ar': // Arabic (Modern Standard)
-            codes.dialect = "";
-            codes.model = "ar-AR_BroadbandModel";
-            break;
-        case 'br': // Brazilian Portuguese
-            codes.dialect = "";
-            codes.model = "pt-BR_BroadbandModel";
-            break;
-        case 'cn': // Chinese (Mandarin)
-            codes.dialect = "";
-            codes.model = "zh-CN_BroadbandModel";
-            break;
-        case 'nl': // Dutch
-            codes.dialect = "";
-            codes.model = "nl-NL_BroadbandModel";
-            break;
-        case 'fr': // French
-            codes.dialect = "";
-            codes.model = "fr-FR_BroadbandModel";
-            break;
-        case 'de': // German
-            codes.dialect = "";
-            codes.model = "de-DE_BroadbandModel";
-            break;
-        case 'it': // Italian
-            codes.dialect = "";
-            codes.model = "it-IT_BroadbandModel";
-            break;
-        case 'jp': // Japanese
-            codes.dialect = "";
-            codes.model = "ja-JP_BroadbandModel";
-            break;
-        case 'kr': // Korean
-            codes.dialect = "";
-            codes.model = "ko-KR_BroadbandModel";
-            break;
     }
+    console.log(langCd)
+    console.log(JSON.stringify(codes))
     return codes;
 }
 
