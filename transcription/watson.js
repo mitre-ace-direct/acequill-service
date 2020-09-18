@@ -90,6 +90,9 @@ Watson.prototype.start = function (callback) {
         gf.resume();
     }).on('error', function (err) {
         console.log(err.toString());
+    }).on('close', function(){
+        console.log("Websocket has closed");
+        gf.destroy();
     });
 
 
