@@ -15,7 +15,8 @@ function Google(file, languageCode, liveFile = true) {
         config: {
             encoding: 'LINEAR16',
             sampleRateHertz: 16000,
-            languageCode: languageCode
+            languageCode: getCodes(languageCode),
+            profanityFilter: true,
         },
         interimResults: true,
         verbose: true
@@ -92,6 +93,50 @@ Google.prototype.speechStream = function (callback) {
             }
         });
 };
+
+function getCodes(langCd) {
+    let code = "en-US"
+
+    
+    switch (langCd) {
+        case 'en': // English US
+            code = "en-US"
+            break;
+        case 'es': // Spanish (Mexican)
+            code = "es-US"
+            break;
+        case 'ar': // Arabic (Modern Standard)
+            codes.dialect = "";
+            codes.model = "ar-AR_BroadbandModel";
+            break;
+        case 'br': // Brazilian Portuguese
+            code = "pt-BR"
+            break;
+        case 'cn': // Chinese (Mandarin)
+            code = "zh"
+            break;
+        case 'nl': // Dutch
+            code = "nl-NL"
+            break;
+        case 'fr': // French
+            codes.dialect = "";
+            codes.model = "fr-FR_BroadbandModel";
+            break;
+        case 'de': // German
+            code = "de-DE"
+            break;
+        case 'it': // Italian
+            code = "it-IT"
+            break;
+        case 'jp': // Japanese
+            code = "ja-JP"
+            break;
+        case 'kr': // Korean
+            code = "ko-KR"
+            break;
+    }
+    return code;
+}
 
 module.exports = Google;
 
