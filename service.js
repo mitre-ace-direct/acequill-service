@@ -2,6 +2,7 @@ var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
 var watsonConfigs = require('./config/watson');
 var Watson = require('./transcription/watson');
+var Google = require('./transcription/google');
 var RedisManager = require('./utils/redisManager');
 var wavFilePath = '/tmp/';
 
@@ -200,7 +201,8 @@ function startTranscription(wavFile, channel, callid, langCd) {
     try {
         var sttEngineMsgTime = 0;
         watsonConfigs.langCd = langCd;
-        var sttEngine = new Watson(wavFile, watsonConfigs);
+        //var sttEngine = new Watson(wavFile, watsonConfigs);
+        var sttEngine = new Google(wavFile, langCd);
 
         sttEngine.start(function (data) {
 
