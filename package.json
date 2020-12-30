@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@google-cloud/speech": "^4.1.5",
+    "@google-cloud/translate": "^6.0.5",
     "asterisk-manager": "^0.1.16",
     "express": "^4.17.1",
     "growing-file": "0.1.3",

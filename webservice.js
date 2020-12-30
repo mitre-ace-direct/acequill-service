@@ -6,7 +6,7 @@ var express = require('express'),
   
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+process.env.GOOGLE_APPLICATION_CREDENTIALS=process.cwd() + "/transcription/google-settings.json";
 
 var routes = require('./api/routes/acequill.js');
 routes(app); //register the route

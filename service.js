@@ -21,7 +21,7 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('commo
     console.log('clearText field is in config.json. assuming file is in clear text');
     clearText = true;
 }
-
+process.env.GOOGLE_APPLICATION_CREDENTIALS=process.cwd() + "/transcription/google-settings.json";
 
 /**
  * Creates an AMI connection to Asterisk.

@@ -21,6 +21,7 @@ function Google(file, languageCode, liveFile = true) {
         interimResults: true,
         verbose: true
     };
+    console.log(JSON.stringify(this.request, null, 2))
 };
 
 Google.prototype.start = function (callback) {
@@ -73,6 +74,20 @@ Google.prototype.speechStream = function (callback) {
                         if(this.liveFile)
                             this.reconnectStreams(this, "final", callback);
                     }
+
+
+		   if (results.transcript.includes("*")) {
+    			let temp = results.transcript.split(" ")
+    			for (let i = 0; i < temp.length; i++) {
+      				if (temp[i].includes("*")) {
+        				let a = temp[i].split("");
+        				a[0] = '*';
+        				temp[i] = a.join("");
+      				}
+    			}
+    			results.transcript  = temp.join(" ")
+		   }
+
                     this.lastResults = results;
                     callback(results);
                 }
@@ -96,31 +111,30 @@ Google.prototype.speechStream = function (callback) {
 
 function getCodes(langCd) {
     let code = "en-US"
-
+console.log(langCd)
     
     switch (langCd) {
         case 'en': // English US
             code = "en-US"
+            //code = "ko-KR"
             break;
         case 'es': // Spanish (Mexican)
             code = "es-US"
             break;
         case 'ar': // Arabic (Modern Standard)
-            codes.dialect = "";
-            codes.model = "ar-AR_BroadbandModel";
+            code  = "ar-EG";
             break;
-        case 'br': // Brazilian Portuguese
-            code = "pt-BR"
+        case 'pt': // Brazilian Portuguese
+            code = "pt-PT"
             break;
-        case 'cn': // Chinese (Mandarin)
+        case 'zh': // Chinese (Mandarin)
             code = "zh"
             break;
         case 'nl': // Dutch
             code = "nl-NL"
             break;
         case 'fr': // French
-            codes.dialect = "";
-            codes.model = "fr-FR_BroadbandModel";
+            code = "fr-FR";
             break;
         case 'de': // German
             code = "de-DE"
@@ -128,10 +142,10 @@ function getCodes(langCd) {
         case 'it': // Italian
             code = "it-IT"
             break;
-        case 'jp': // Japanese
+        case 'ja': // Japanese
             code = "ja-JP"
             break;
-        case 'kr': // Korean
+        case 'ko': // Korean
             code = "ko-KR"
             break;
     }
@@ -140,7 +154,8 @@ function getCodes(langCd) {
 
 module.exports = Google;
 
-//var test1 = new Google('../public/sounds/rain_in_spain.wav');
+//process.env.GOOGLE_APPLICATION_CREDENTIALS=process.cwd() + "/google-settings.json";
+//var test1 = new Google('/tmp/d2e59669-b038-48fa-9416-0d31cc6ce7e3-in.wav16','en');
 //test1.start(function(data){console.log(data)});
 
 
