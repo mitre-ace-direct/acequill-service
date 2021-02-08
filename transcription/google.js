@@ -21,6 +21,11 @@ function Google(file, languageCode, liveFile = true) {
         interimResults: true,
         verbose: true
     };
+    if(['en-US', 'es-US'].includes(this.request.config.languageCode)){
+	console.log("ENHANCED!!!!!")
+	this.request.config.useEnhanced = true;
+        this.request.config.model = 'phone_call';
+    }
     console.log(JSON.stringify(this.request, null, 2))
 };
 
@@ -89,7 +94,10 @@ Google.prototype.speechStream = function (callback) {
 		   }
 
                     this.lastResults = results;
-                    callback(results);
+		    // STABILITY filtering to stablize corrections
+	            if(results.final || (data.results[0].stability > 0.8)){
+                    	callback(results);
+		    }
                 }
             } else {
                 console.error("Error: " + JSON.stringify(data));
