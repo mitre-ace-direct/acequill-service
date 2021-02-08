@@ -1,8 +1,7 @@
 var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
-var watsonConfigs = require('./config/watson');
-var Watson = require('./transcription/watson');
-var Google = require('./transcription/google');
+//var STTEngine = require('./transcription/watson');
+var STTEngine = require('./transcription/google');
 var RedisManager = require('./utils/redisManager');
 var wavFilePath = '/tmp/';
 
@@ -21,7 +20,9 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('commo
     console.log('clearText field is in config.json. assuming file is in clear text');
     clearText = true;
 }
-process.env.GOOGLE_APPLICATION_CREDENTIALS=process.cwd() + "/transcription/google-settings.json";
+
+//Comment out if using IBM Watson
+process.env.GOOGLE_APPLICATION_CREDENTIALS=process.cwd() + "/config/google.json";
 
 /**
  * Creates an AMI connection to Asterisk.
@@ -200,9 +201,7 @@ function startTranscription(wavFile, channel, callid, langCd) {
 
     try {
         var sttEngineMsgTime = 0;
-        watsonConfigs.langCd = langCd;
-        //var sttEngine = new Watson(wavFile, watsonConfigs);
-        var sttEngine = new Google(wavFile, langCd);
+        var sttEngine = new STTEngine(wavFile, langCd);
 
         sttEngine.start(function (data) {
 

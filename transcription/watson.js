@@ -16,9 +16,10 @@ var SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
 var fs = require('fs');
 var GrowingFile = require('growing-file');
 const { IamAuthenticator } = require('ibm-watson/auth');
+const configs = require('./../config/watson');
 
 
-function Watson(file, configs) {
+function Watson(file, langCd) {
     this.file = file;
     this.iam_apikey = configs.iam_apikey;
     this.url = configs.url;
@@ -28,7 +29,7 @@ function Watson(file, configs) {
     this.smart_formatting = true;
     this.interminResults = true;
     this.objectMode = true;
-    this.language = getCodes(configs.langCd);
+    this.language = getCodes(langCd);
 }
 
 Watson.prototype.start = function (callback) {

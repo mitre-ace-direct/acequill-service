@@ -1,9 +1,8 @@
 const LanguageTranslatorV3 = require('ibm-watson/language-translator/v3');
 const { IamAuthenticator } = require('ibm-watson/auth');
+const configs = require('./../config/watson');
 
-
-
-function Watson(configs) {
+function Watson() {
     this.iam_apikey = configs.translation_apikey;
     this.url = configs.translation_url;
     this.proxy = configs.proxy || false;
@@ -48,15 +47,13 @@ Watson.prototype.translate = function (text, source, target, callback) {
     }
     inputs.source = source || null;
     inputs.target = target || null;
-    console.log(inputs)
     languageTranslator.translate(inputs)
         .then(resp => {
-            console.log(JSON.stringify(resp.result));
-            callback(resp.result.translations[0].translation)
+            callback(null, resp.result.translations[0].translation)
         })
         .catch(error => {
             console.log("Error", error)
-            callback(text);
+            callback(error, text);
     });
 };
 

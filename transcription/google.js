@@ -22,11 +22,9 @@ function Google(file, languageCode, liveFile = true) {
         verbose: true
     };
     if(['en-US', 'es-US'].includes(this.request.config.languageCode)){
-	console.log("ENHANCED!!!!!")
 	this.request.config.useEnhanced = true;
         this.request.config.model = 'phone_call';
     }
-    console.log(JSON.stringify(this.request, null, 2))
 };
 
 Google.prototype.start = function (callback) {
@@ -41,7 +39,6 @@ Google.prototype.start = function (callback) {
                   "timeout", callback);
 
     this.growingWav.on('end', () => {
-        console.debug("clearing reconnection timer");
         clearTimeout(this.gfWavPolling);
         this.done = true;
         callback({end: true});
@@ -64,7 +61,6 @@ Google.prototype.speechStream = function (callback) {
     return speech.streamingRecognize(this.request)
         .on('error', (error) => {
             console.error("Google Error: " + error);
-            console.debug('What should I do?');
         })
         .on('data', (data) => {
             if (!data.error) {
@@ -100,8 +96,7 @@ Google.prototype.speechStream = function (callback) {
 		    }
                 }
             } else {
-                console.error("Error: " + JSON.stringify(data));
-                console.debug('Stopping Google STT due to error');
+                console.error("Google Error: " + JSON.stringify(data));
                 if (data.error.code === 11) {
                     if (this.lastResults.final === false) {
                         console.debug('a FORCED final');
@@ -119,12 +114,9 @@ Google.prototype.speechStream = function (callback) {
 
 function getCodes(langCd) {
     let code = "en-US"
-console.log(langCd)
-    
     switch (langCd) {
         case 'en': // English US
             code = "en-US"
-            //code = "ko-KR"
             break;
         case 'es': // Spanish (Mexican)
             code = "es-US"
@@ -162,8 +154,5 @@ console.log(langCd)
 
 module.exports = Google;
 
-//process.env.GOOGLE_APPLICATION_CREDENTIALS=process.cwd() + "/google-settings.json";
-//var test1 = new Google('/tmp/d2e59669-b038-48fa-9416-0d31cc6ce7e3-in.wav16','en');
-//test1.start(function(data){console.log(data)});
 
 
