@@ -9,7 +9,7 @@ function RedisManager() {
 }
 
 RedisManager.prototype.getLanguageByExtension = function (ext, callback) {
-        this.client.hget(config.hashname, ext, function (err, lang) {
+        this.client.hget(config.keyname, ext, function (err, lang) {
           callback(lang || "en")
         });
 }
