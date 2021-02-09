@@ -42,10 +42,13 @@ credit card to support billing
 1. Copy the JSON file to config/google.json
 
 ### IBM Watson Configuration (optional)
-* ACE Quill can use IBM Watson inplace of Google for Speech to Text and Translation.* 
-If you wish to use IBM Watson instead of Google you will need to change the following files:
-`service.js`:  uncomment line 3 and comment out line 4
-`api/models/acequillModel.js`: uncomment line 1 and comment out line 2
+*ACE Quill can use IBM Watson inplace of Google for Speech to Text and Translation.
+If you wish to use IBM Watson instead of Google you will need to change the following files:*         
+
+`service.js`:  uncomment line 3 and comment out line 4.  
+`api/models/acequillModel.js`: uncomment line 1 and comment out line 2.
+
+#### IBM Watson Service Account 
 
 1. The ACE Quill service uses the IBM Watson speech to text engine to support
 captions and requires an [IBM Cloud](https://www.ibm.com/cloud) account and
@@ -63,9 +66,11 @@ SPEECH_TO_TEXT_URL=<WATSON URL HERE>
 1. To verify the service is running, type `pm2 status` and you should see output similar to this:
 
 ```
-┌──────────────────┬────┬──────┬───────┬────────┬─────────┬────────┬─────┬───────────┬────────┬──────────┐
-│ App name         │ id │ mode │ pid   │ status │ restart │ uptime │ cpu │ mem       │ user   │ watching │
-├──────────────────┼────┼──────┼───────┼────────┼─────────┼────────┼─────┼───────────┼────────┼──────────┤
-│ ACEQuill-Service │ 0  │ fork │ 30780 │ online │ 0       │ 0s     │ 36% │ 12.5 MB   │ centos │ disabled │
-└──────────────────┴────┴──────┴───────┴────────┴─────────┴────────┴─────┴───────────┴────────┴──────────┘
+
+┌─────┬─────────────────────┬─────────────┬─────────┬─────────┬──────────┬────────┬──────┬───────────┬──────────┬──────────┬──────────┬──────────┐
+│ id  │ name                │ namespace   │ version │ mode    │ pid      │ uptime │ ↺    │ status    │ cpu      │ mem      │ user     │ watching │
+├─────┼─────────────────────┼─────────────┼─────────┼─────────┼──────────┼────────┼──────┼───────────┼──────────┼──────────┼──────────┼──────────┤
+│ 1   │ ACEQuill-API        │ default     │ 1.0.0   │ fork    │ 4755     │ 0s     │ 0    │ online    │ 0%       │ 15.0mb   │ centos │ disabled │
+│ 0   │ ACEQuill-Service    │ default     │ 1.0.0   │ fork    │ 4753     │ 0s     │ 0    │ online    │ 0%       │ 16.0mb   │ centos │ disabled │
+└─────┴─────────────────────┴─────────────┴─────────┴─────────┴──────────┴────────┴──────┴───────────┴──────────┴──────────┴──────────┴──────────┘
 ```
