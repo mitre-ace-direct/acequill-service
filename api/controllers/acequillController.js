@@ -10,7 +10,7 @@ exports.translate = function(req, res) {
   console.log(langTo)
   console.log(langFrom)
   if(text && langFrom){
-    AQModel.translate(text, langTo, langFrom, function(err, results) { 
+    AQModel.translate(text, langFrom, langTo, function(err, results) { 
     let returnJson = { 
 	status: "success",
 	message: `Translated from ${langFrom} to ${langTo}`,

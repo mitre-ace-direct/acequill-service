@@ -1,9 +1,16 @@
 var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
+<<<<<<< HEAD
 var watsonConfigs = require('./config/watson');
 var Watson = require('./transcription/watson');
 var RedisManager = require('./utils/redisManager');
 var wavFilePath = '/tmp/wav';
+=======
+//var STTEngine = require('./transcription/watson');
+var STTEngine = require('./transcription/google');
+var RedisManager = require('./utils/redisManager');
+var wavFilePath = '/tmp/';
+>>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 
 var bridgeIdMap = new Map();
 var channelIdSet = new Set();
@@ -16,11 +23,16 @@ var fs = require('fs');
 ** remove the field or set it to "" if the file is encoded
 */
 var clearText = false;
-if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('common:cleartext') !== "" ) {
+if (typeof (nconf.get('common:cleartext')) !== "undefined" && nconf.get('common:cleartext') !== "") {
     console.log('clearText field is in config.json. assuming file is in clear text');
     clearText = true;
 }
 
+<<<<<<< HEAD
+=======
+//Comment out if using IBM Watson
+process.env.GOOGLE_APPLICATION_CREDENTIALS = process.cwd() + "/config/google.json";
+>>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 
 /**
  * Creates an AMI connection to Asterisk.
@@ -125,19 +137,24 @@ function handle_manager_event(evt) {
 
                 // Start recording here
                 console.log("Recording file: " + wavFilename);
-                sendAmiAction({
-                    "Action": "Monitor",
-                    "Channel": agentChannel,
-                    "File": wavFilename,
-                    "Format": "wav16"
-                });
+
+                var mixMonitorCommand = {
+                    Action: "MixMonitor",
+                    Channel: evt.channel,
+                    File: wavFilePath + wavFilename + "-mix.wav16",
+                    options: "r(" + wavFilePath + wavFilename + "-callee-out.wav16) t(" + wavFilePath + wavFilename + "-caller-out.wav16)"
+                };
+
+                sendAmiAction(mixMonitorCommand);
+
+
 
                 /*
                  * Build the filenames to pass out to startTransciption, Asterisk appends the
                  * -in.wav16 and -out.wav16 extensions to the files is creates
                  */
-                var inFile = wavFilePath + bridgeId + "-in.wav16";
-                var outFile = wavFilePath + bridgeId + "-out.wav16";
+                var inFile = wavFilePath + wavFilename + "-caller-out.wav16";
+                var outFile = wavFilePath + wavFilename + "-callee-out.wav16";
 
                 console.log();
                 console.log("inFile: " + inFile);
@@ -149,13 +166,13 @@ function handle_manager_event(evt) {
                 // Start the transcription for each channel
                 // Test if extension is webrtc (30000 or 90000)
                 const webrtcExt = new RegExp("PJSIP\/(3|9)");
-                if(webrtcExt.test(consumerChannel)){
-                        rClient.getLanguageByExtension(consumerChannel.substring(6,11), function(langCd){
-                            startTranscription(inFile, consumerChannel, evt.uniqueid, langCd);
-                        });
-                    }
-                if(webrtcExt.test(agentChannel)){
-                    rClient.getLanguageByExtension(agentChannel.substring(6,11), function(langCd){
+                if (webrtcExt.test(consumerChannel)) {
+                    rClient.getLanguageByExtension(agentChannel.substring(6, 11), function (langCd) {
+                        startTranscription(inFile, consumerChannel, evt.uniqueid, langCd);
+                    });
+                }
+                if (webrtcExt.test(agentChannel)) {
+                    rClient.getLanguageByExtension(consumerChannel.substring(6, 11), function (langCd) {
                         startTranscription(outFile, agentChannel, evt.uniqueid, langCd);
                     });
                 }
@@ -199,8 +216,12 @@ function startTranscription(wavFile, channel, callid, langCd) {
 
     try {
         var sttEngineMsgTime = 0;
+<<<<<<< HEAD
         watsonConfigs.langCd = langCd;
         var sttEngine = new Watson(wavFile, watsonConfigs);
+=======
+        var sttEngine = new STTEngine(wavFile, langCd);
+>>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 
         sttEngine.start(function (data) {
 
@@ -223,7 +244,11 @@ function startTranscription(wavFile, channel, callid, langCd) {
                 });
 
                 data.channel = channel;
+<<<<<<< HEAD
 		        data.callid = callid;
+=======
+                data.callid = callid;
+>>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 
             }
 
@@ -249,7 +274,7 @@ function sendAmiAction(obj) {
     console.log();
     console.log("Entering sendAmiAction(): " + JSON.stringify(obj, null, 4));
 
-    ami.action(obj, function(err, res) {
+    ami.action(obj, function (err, res) {
         if (err) {
             console.log('AMI Action error ' + JSON.stringify(err, null, 4));
         }
@@ -266,25 +291,25 @@ function getConfigVal(param_name) {
     var decodedString = null;
 
     if (typeof val !== 'undefined' && val !== null) {
-      //found value for param_name
+        //found value for param_name
 
 
-      if (clearText) {
+        if (clearText) {
 
-        decodedString = val;
-      } else {
-        decodedString = new Buffer(val, 'base64');
-      }
+            decodedString = val;
+        } else {
+            decodedString = new Buffer(val, 'base64');
+        }
     } else {
-      //did not find value for param_name
-      /*
-      logger.error('');
-      logger.error('*******************************************************');
-      logger.error('ERROR!!! Config parameter is missing: ' + param_name);
-      logger.error('*******************************************************');
-      logger.error('');
-      */
-      decodedString = "";
+        //did not find value for param_name
+        /*
+        logger.error('');
+        logger.error('*******************************************************');
+        logger.error('ERROR!!! Config parameter is missing: ' + param_name);
+        logger.error('*******************************************************');
+        logger.error('');
+        */
+        decodedString = "";
     }
     return (decodedString.toString());
-  }
+}

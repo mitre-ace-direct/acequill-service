@@ -1,6 +1,8 @@
- module.exports = {
-    iam_apikey: process.env.WATSON_IAM_APIKEY || "<API KEY HERE>", // Set string if not using ENV
-    url: process.env.WATSON_URL ||  "<WATSON URL HERE>", // Set string if not using ENV
-    proxy: '<PROXY IP HERE>',
-    proxy_port: '<PROXY PORT HERE>'
+module.exports = {
+    iam_apikey: "<speech to text api key>",
+    url: "https://stream.watsonplatform.net/speech-to-text/api",
+    translation_apikey : "<translation-api-key>",
+    translation_url: "https://gateway.watsonplatform.net/language-translator/api",
+    proxy: "<proxy ip or hostname>",
+    proxy_port: "<proxy_port>"
 }

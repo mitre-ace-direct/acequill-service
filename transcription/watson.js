@@ -16,9 +16,13 @@ var SpeechToTextV1 = require('ibm-watson/speech-to-text/v1');
 var fs = require('fs');
 var GrowingFile = require('growing-file');
 const { IamAuthenticator } = require('ibm-watson/auth');
+<<<<<<< HEAD
+=======
+const configs = require('./../config/watson');
 
+>>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 
-function Watson(file, configs) {
+function Watson(file, langCd) {
     this.file = file;
     this.iam_apikey = configs.iam_apikey;
     this.url = configs.url;
@@ -28,7 +32,11 @@ function Watson(file, configs) {
     this.smart_formatting = true;
     this.interminResults = true;
     this.objectMode = true;
+<<<<<<< HEAD
     this.language = getCodes(configs.langCd);
+=======
+    this.language = getCodes(langCd);
+>>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 }
 
 Watson.prototype.start = function (callback) {
@@ -90,6 +98,9 @@ Watson.prototype.start = function (callback) {
         gf.resume();
     }).on('error', function (err) {
         console.log(err.toString());
+    }).on('close', function(){
+        console.log("Websocket has closed");
+        gf.destroy();
     });
 
 
@@ -119,6 +130,7 @@ function getCodes(langCd) {
         model: "en-US_BroadbandModel"
     };
     switch (langCd) {
+<<<<<<< HEAD
         case 'en':
             codes.dialect = "en-US";
             codes.model = "en-US_BroadbandModel";
@@ -127,6 +139,52 @@ function getCodes(langCd) {
             codes.dialect = "es-US";
             codes.model = "es-MX_BroadbandModel";
             break;
+=======
+        case 'en': // English US
+            codes.dialect = "en-US";
+            codes.model = "en-US_BroadbandModel";
+            break;
+        case 'es': // Spanish (Mexican)
+            codes.dialect = "es-US";
+            codes.model = "es-MX_BroadbandModel";
+            break;
+        case 'ar': // Arabic (Modern Standard)
+            codes.dialect = "";
+            codes.model = "ar-AR_BroadbandModel";
+            break;
+        case 'br': // Brazilian Portuguese
+            codes.dialect = "";
+            codes.model = "pt-BR_BroadbandModel";
+            break;
+        case 'cn': // Chinese (Mandarin)
+            codes.dialect = "";
+            codes.model = "zh-CN_BroadbandModel";
+            break;
+        case 'nl': // Dutch
+            codes.dialect = "";
+            codes.model = "nl-NL_BroadbandModel";
+            break;
+        case 'fr': // French
+            codes.dialect = "";
+            codes.model = "fr-FR_BroadbandModel";
+            break;
+        case 'de': // German
+            codes.dialect = "";
+            codes.model = "de-DE_BroadbandModel";
+            break;
+        case 'it': // Italian
+            codes.dialect = "";
+            codes.model = "it-IT_BroadbandModel";
+            break;
+        case 'jp': // Japanese
+            codes.dialect = "";
+            codes.model = "ja-JP_BroadbandModel";
+            break;
+        case 'kr': // Korean
+            codes.dialect = "";
+            codes.model = "ko-KR_BroadbandModel";
+            break;
+>>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
     }
     console.log(langCd)
     console.log(JSON.stringify(codes))
