@@ -1,6 +1,6 @@
 module.exports = {
-    host: process.env.REDIS_HOST || "172.21.1.83", // Set string if not using ENV
-    port: process.env.REDIS_PORT ||  "6379", // Set string if not using ENV
-    auth: process.env.REDIS_AUTH ||  "NotUsedInDevEnvironment", // Set string if not using ENV
-    keyname: process.env.REDIS_KEYNAME ||  "ec2-user_extensionToLanguage", // Set string if not using ENV
+    host: process.env.REDIS_HOST || "<redis hostname or ip>", // Set string if not using ENV
+    port: process.env.REDIS_PORT ||  "<redis port>", // Set string if not using ENV
+    auth: process.env.REDIS_AUTH ||  "<auth if required>", // Set string if not using ENV
+    keyname: process.env.REDIS_KEYNAME ||  "extensionToLanguage", // Set string if not using ENV
 }
