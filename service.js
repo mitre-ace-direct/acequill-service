@@ -1,16 +1,9 @@
 var asteriskManager = require('asterisk-manager');
 var asteriskConfigs = require('./config/asterisk');
-<<<<<<< HEAD
-var watsonConfigs = require('./config/watson');
-var Watson = require('./transcription/watson');
-var RedisManager = require('./utils/redisManager');
-var wavFilePath = '/tmp/wav';
-=======
 //var STTEngine = require('./transcription/watson');
 var STTEngine = require('./transcription/google');
 var RedisManager = require('./utils/redisManager');
 var wavFilePath = '/tmp/';
->>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 
 var bridgeIdMap = new Map();
 var channelIdSet = new Set();
@@ -28,11 +21,8 @@ if (typeof (nconf.get('common:cleartext')) !== "undefined" && nconf.get('common:
     clearText = true;
 }
 
-<<<<<<< HEAD
-=======
 //Comment out if using IBM Watson
 process.env.GOOGLE_APPLICATION_CREDENTIALS = process.cwd() + "/config/google.json";
->>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 
 /**
  * Creates an AMI connection to Asterisk.
@@ -216,12 +206,7 @@ function startTranscription(wavFile, channel, callid, langCd) {
 
     try {
         var sttEngineMsgTime = 0;
-<<<<<<< HEAD
-        watsonConfigs.langCd = langCd;
-        var sttEngine = new Watson(wavFile, watsonConfigs);
-=======
         var sttEngine = new STTEngine(wavFile, langCd);
->>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 
         sttEngine.start(function (data) {
 
@@ -244,11 +229,7 @@ function startTranscription(wavFile, channel, callid, langCd) {
                 });
 
                 data.channel = channel;
-<<<<<<< HEAD
-		        data.callid = callid;
-=======
                 data.callid = callid;
->>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
 
             }
 
