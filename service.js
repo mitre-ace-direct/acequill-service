@@ -131,8 +131,8 @@ function handle_manager_event(evt) {
                 var mixMonitorCommand = {
                     Action: "MixMonitor",
                     Channel: evt.channel,
-                    File: wavFilePath + pstnFilename + "-mix.wav16",
-                    options: "r(" + wavFilePath + pstnFilename + "-callee-out.wav16) t(" + wavFilePath + pstnFilename + "-caller-out.wav16)"
+                    File: wavFilePath + wavFilename + "-mix.wav16",
+                    options: "r(" + wavFilePath + wavFilename + "-callee-out.wav16) t(" + wavFilePath + wavFilename + "-caller-out.wav16)"
                 };
 
                 sendAmiAction(mixMonitorCommand);
@@ -143,8 +143,8 @@ function handle_manager_event(evt) {
                  * Build the filenames to pass out to startTransciption, Asterisk appends the
                  * -in.wav16 and -out.wav16 extensions to the files is creates
                  */
-                var inFile = wavFilePath + pstnFilename + "-caller-out.wav16";
-                var outFile = wavFilePath + pstnFilename + "-callee-out.wav16";
+                var inFile = wavFilePath + wavFilename + "-caller-out.wav16";
+                var outFile = wavFilePath + wavFilename + "-callee-out.wav16";
 
                 console.log();
                 console.log("inFile: " + inFile);
