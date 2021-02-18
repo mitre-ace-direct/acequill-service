@@ -16,13 +16,13 @@ var fs = require('fs');
 ** remove the field or set it to "" if the file is encoded
 */
 var clearText = false;
-if (typeof (nconf.get('common:cleartext')) !== "undefined"   && nconf.get('common:cleartext') !== "" ) {
+if (typeof (nconf.get('common:cleartext')) !== "undefined" && nconf.get('common:cleartext') !== "") {
     console.log('clearText field is in config.json. assuming file is in clear text');
     clearText = true;
 }
 
 //Comment out if using IBM Watson
-process.env.GOOGLE_APPLICATION_CREDENTIALS=process.cwd() + "/config/google.json";
+process.env.GOOGLE_APPLICATION_CREDENTIALS = process.cwd() + "/config/google.json";
 
 /**
  * Creates an AMI connection to Asterisk.
@@ -127,19 +127,24 @@ function handle_manager_event(evt) {
 
                 // Start recording here
                 console.log("Recording file: " + wavFilename);
-                sendAmiAction({
-                    "Action": "Monitor",
-                    "Channel": agentChannel,
-                    "File": wavFilename,
-                    "Format": "wav16"
-                });
+
+                var mixMonitorCommand = {
+                    Action: "MixMonitor",
+                    Channel: evt.channel,
+                    File: wavFilePath + pstnFilename + "-mix.wav16",
+                    options: "r(" + wavFilePath + pstnFilename + "-callee-out.wav16) t(" + wavFilePath + pstnFilename + "-caller-out.wav16)"
+                };
+
+                sendAmiAction(mixMonitorCommand);
+
+
 
                 /*
                  * Build the filenames to pass out to startTransciption, Asterisk appends the
                  * -in.wav16 and -out.wav16 extensions to the files is creates
                  */
-                var inFile = wavFilePath + bridgeId + "-in.wav16";
-                var outFile = wavFilePath + bridgeId + "-out.wav16";
+                var inFile = wavFilePath + pstnFilename + "-caller-out.wav16";
+                var outFile = wavFilePath + pstnFilename + "-callee-out.wav16";
 
                 console.log();
                 console.log("inFile: " + inFile);
@@ -151,13 +156,13 @@ function handle_manager_event(evt) {
                 // Start the transcription for each channel
                 // Test if extension is webrtc (30000 or 90000)
                 const webrtcExt = new RegExp("PJSIP\/(3|9)");
-                if(webrtcExt.test(consumerChannel)){
-                        rClient.getLanguageByExtension(agentChannel.substring(6,11), function(langCd){
-                            startTranscription(inFile, consumerChannel, evt.uniqueid, langCd);
-                        });
-                    }
-                if(webrtcExt.test(agentChannel)){
-                    rClient.getLanguageByExtension(consumerChannel.substring(6,11), function(langCd){
+                if (webrtcExt.test(consumerChannel)) {
+                    rClient.getLanguageByExtension(agentChannel.substring(6, 11), function (langCd) {
+                        startTranscription(inFile, consumerChannel, evt.uniqueid, langCd);
+                    });
+                }
+                if (webrtcExt.test(agentChannel)) {
+                    rClient.getLanguageByExtension(consumerChannel.substring(6, 11), function (langCd) {
                         startTranscription(outFile, agentChannel, evt.uniqueid, langCd);
                     });
                 }
@@ -224,7 +229,7 @@ function startTranscription(wavFile, channel, callid, langCd) {
                 });
 
                 data.channel = channel;
-		        data.callid = callid;
+                data.callid = callid;
 
             }
 
@@ -250,7 +255,7 @@ function sendAmiAction(obj) {
     console.log();
     console.log("Entering sendAmiAction(): " + JSON.stringify(obj, null, 4));
 
-    ami.action(obj, function(err, res) {
+    ami.action(obj, function (err, res) {
         if (err) {
             console.log('AMI Action error ' + JSON.stringify(err, null, 4));
         }
@@ -267,25 +272,25 @@ function getConfigVal(param_name) {
     var decodedString = null;
 
     if (typeof val !== 'undefined' && val !== null) {
-      //found value for param_name
+        //found value for param_name
 
 
-      if (clearText) {
+        if (clearText) {
 
-        decodedString = val;
-      } else {
-        decodedString = new Buffer(val, 'base64');
-      }
+            decodedString = val;
+        } else {
+            decodedString = new Buffer(val, 'base64');
+        }
     } else {
-      //did not find value for param_name
-      /*
-      logger.error('');
-      logger.error('*******************************************************');
-      logger.error('ERROR!!! Config parameter is missing: ' + param_name);
-      logger.error('*******************************************************');
-      logger.error('');
-      */
-      decodedString = "";
+        //did not find value for param_name
+        /*
+        logger.error('');
+        logger.error('*******************************************************');
+        logger.error('ERROR!!! Config parameter is missing: ' + param_name);
+        logger.error('*******************************************************');
+        logger.error('');
+        */
+        decodedString = "";
     }
     return (decodedString.toString());
-  }
+}
