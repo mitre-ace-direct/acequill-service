@@ -1,8 +1,9 @@
-var asteriskManager = require('asterisk-manager');
-var asteriskConfigs = require('./config/asterisk');
-//var STTEngine = require('./transcription/watson');
-var STTEngine = require('./transcription/google');
-var RedisManager = require('./utils/redisManager');
+const asteriskManager = require('asterisk-manager');
+const asteriskConfigs = require('./config/asterisk');
+//const STTEngine = require('./transcription/watson');
+const STTEngine = require('./transcription/google');
+const RedisManager = require('./utils/redisManager');
+const cleaner = require('./utils/cleaner');
 var wavFilePath = '/tmp/';
 
 var bridgeIdMap = new Map();
@@ -52,6 +53,10 @@ function init_ami() {
 const rClient = new RedisManager();
 // Initialize the Asterisk AMI connection
 init_ami();
+
+setInterval(function(){
+	cleaner();
+},5000);
 
 
 /**
@@ -214,7 +219,7 @@ function startTranscription(wavFile, channel, callid, langCd) {
                 let d = new Date();
                 sttEngineMsgTime = d.getTime();
             }
-
+            data.langCd = langCd;
             data.msgid = sttEngineMsgTime;
 
             console.log("data.msgid: " + data.msgid);
