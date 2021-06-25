@@ -4,8 +4,8 @@ const asteriskConfigs = require('./config/asterisk');
 const STTEngine = require('./transcription/google');
 const RedisManager = require('./utils/redisManager');
 const cleaner = require('./utils/cleaner');
-var wavFilePath = '/tmp/';
-
+var wavFilePath = process.cwd() + '/recordings/';
+console.log(wavFilePath)
 var bridgeIdMap = new Map();
 var channelIdSet = new Set();
 var ami = null;
@@ -55,7 +55,7 @@ const rClient = new RedisManager();
 init_ami();
 
 setInterval(function(){
-	cleaner();
+	cleaner(wavFilePath);
 },5000);
 
 
@@ -125,19 +125,19 @@ function handle_manager_event(evt) {
 
                 console.log("bridgeIdMap.size - after: " + bridgeIdMap.size);
 
-                var wavFilename = wavFilePath + bridgeId;
+                var wavFilename = wavFilePath +  bridgeId;
 
                 console.log("Adding " + agentChannel + " to set");
                 channelIdSet.add(agentChannel);
 
                 // Start recording here
-                console.log("Recording file: " + wavFilename);
+                console.log("Recording file: " + wavFilePath + wavFilename);
 
                 var mixMonitorCommand = {
                     Action: "MixMonitor",
                     Channel: evt.channel,
-                    File: wavFilePath + wavFilename + "-mix.wav16",
-                    options: "r(" + wavFilePath + wavFilename + "-callee-out.wav16) t(" + wavFilePath + wavFilename + "-caller-out.wav16)"
+                    File: wavFilename + "-mix.wav16",
+                    options: "r(" + wavFilename + "-callee-out.wav16) t(" + wavFilename + "-caller-out.wav16)"
                 };
 
                 sendAmiAction(mixMonitorCommand);
@@ -148,8 +148,8 @@ function handle_manager_event(evt) {
                  * Build the filenames to pass out to startTransciption, Asterisk appends the
                  * -in.wav16 and -out.wav16 extensions to the files is creates
                  */
-                var inFile = wavFilePath + wavFilename + "-caller-out.wav16";
-                var outFile = wavFilePath + wavFilename + "-callee-out.wav16";
+                var inFile =  wavFilename + "-caller-out.wav16";
+                var outFile = wavFilename + "-callee-out.wav16";
 
                 console.log();
                 console.log("inFile: " + inFile);

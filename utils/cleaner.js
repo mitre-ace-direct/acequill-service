@@ -1,9 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const filepath = '/tmp/';
-
-module.exports = function () {
+module.exports = function (filepath) {
    const now = new Date().getTime();
 
    fs.readdir(filepath, (err, files) => {
