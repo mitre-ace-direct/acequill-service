@@ -11,7 +11,7 @@ module.exports = function () {
          console.log(err);
          return;
       }
-      files.forEach(filepath => {
+      files.forEach(file => {
          if (path.extname(file) === '.wav16') {
             fs.stat(filepath + file, (err, stats) => {
                if (err) {
