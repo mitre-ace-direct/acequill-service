@@ -222,8 +222,10 @@ function startTranscription(wavFile, channel, callid, langCd) {
             data.langCd = langCd;
             data.msgid = sttEngineMsgTime;
 
-            console.log("data.msgid: " + data.msgid);
-            console.log("data.transcript: " + data.transcript);
+
+            //Remove comment for Debugging only, privacy violation to write transcripts to log file
+            //console.log("data.msgid: " + data.msgid);
+            //console.log("data.transcript: " + data.transcript);
 
             if (channel) {
                 sendAmiAction({
@@ -256,9 +258,6 @@ function startTranscription(wavFile, channel, callid, langCd) {
  * @param {JSON} obj - Contains AMI action (in JSON format) to be executed.
  */
 function sendAmiAction(obj) {
-
-    console.log();
-    console.log("Entering sendAmiAction(): " + JSON.stringify(obj, null, 4));
 
     ami.action(obj, function (err, res) {
         if (err) {

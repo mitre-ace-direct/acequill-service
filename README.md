@@ -30,7 +30,7 @@ can be found [here](https://www.ibm.com/cloud/watson-speech-to-text/pricing).
 1. Clone this repository onto the same server that is running Asterisk
 1. Clone the dat repo in the same folder and follow the configuration
 instructions.
-1. Download and install [Node.js](https://nodejs.org/en/)
+1. Download and install [Node.js](https://nodejs.org/en/) v16 (Active LTS Release)
 1. In an elevated command prompt, run `npm install -g pm2`
 
 ### Google Configuration

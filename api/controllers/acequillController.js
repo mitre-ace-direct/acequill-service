@@ -6,9 +6,6 @@ exports.translate = function(req, res) {
   let text   = req.query.text,
     langTo   = req.query.languageTo || 'en',
     langFrom = req.query.languageFrom;
-  console.log(text)
-  console.log(langTo)
-  console.log(langFrom)
   if(text && langFrom){
     AQModel.translate(text, langFrom, langTo, function(err, results) { 
     let returnJson = { 
