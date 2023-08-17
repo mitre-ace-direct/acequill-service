@@ -69,7 +69,6 @@ Google.prototype.speechStream = function (callback) {
                         'transcript': data.results[0].alternatives[0].transcript,
                         'final': data.results[0].isFinal,
                         'timestamp': new Date(),
-                        'raw': JSON.stringify(data),
                     };
                     if (results.final) {
                         if(this.liveFile)
