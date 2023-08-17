@@ -89,7 +89,6 @@ Watson.prototype.start = function (callback) {
                 'timestamp': new Date()
             };
 
-            console.log('results:' + results);
             callback(results);
         }
 
@@ -130,16 +129,6 @@ function getCodes(langCd) {
         model: "en-US_BroadbandModel"
     };
     switch (langCd) {
-<<<<<<< HEAD
-        case 'en':
-            codes.dialect = "en-US";
-            codes.model = "en-US_BroadbandModel";
-            break;
-        case 'es':
-            codes.dialect = "es-US";
-            codes.model = "es-MX_BroadbandModel";
-            break;
-=======
         case 'en': // English US
             codes.dialect = "en-US";
             codes.model = "en-US_BroadbandModel";
@@ -184,10 +173,7 @@ function getCodes(langCd) {
             codes.dialect = "";
             codes.model = "ko-KR_BroadbandModel";
             break;
->>>>>>> d7b374cb34b8abed5524a1f5b8fc8c4109168aa7
     }
-    console.log(langCd)
-    console.log(JSON.stringify(codes))
     return codes;
 }
 
