@@ -1,0 +1,17 @@
+{
+	"apps": [{
+		"name": "ACEQuill-Service",
+		"script": "service.js",
+        "autorestart": true,
+		"log_date_format" : "YYYY-MM-DD HH:mm Z",
+		"error_file": "logs/pm2-error.log",
+		"out_file": "logs/pm2-out.log"
+	},{
+		"name": "ACEQuill-API",
+		"script": "webservice.js",
+        "autorestart": true,
+		"log_date_format" : "YYYY-MM-DD HH:mm Z",
+		"error_file": "logs/pm2-ws-error.log",
+		"out_file": "logs/pm2-ws-out.log"
+        }]
+}
